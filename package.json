@@ -1,0 +1,23 @@
+{
+  "name": "uwumotiondetection",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thomas-Boi/UwUMotionDetection.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Thomas-Boi/UwUMotionDetection/issues"
+  },
+  "homepage": "https://github.com/Thomas-Boi/UwUMotionDetection#readme",
+  "dependencies": {
+    "@mediapipe/camera_utils": "^0.3.1640029074",
+    "@mediapipe/hands": "^0.4.1635986972"
+  }
+}
