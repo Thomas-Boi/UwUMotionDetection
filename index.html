@@ -3,17 +3,12 @@
 	<link href="index.css" rel='stylesheet'>
 		<meta charset="utf-8">
   <link rel="icon" href="favicon.ico">
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.js" crossorigin="anonymous"></script>
-
 
 	</head>
 	<body>
 	  <div class="container">
 			<!--Display none for video. Change in CSS-->
-			<video class="input_video" width="500px" height="300px"></video>
-			<!-- <canvas class="output_canvas" width="500px" height="300px"></canvas> -->
+			<video id="input_video" width="500px" height="300px"></video>
 			<div id="message">
 			</div>
 			<label for='running'>Is Running<input type='checkbox' id='runningCheckbox' checked></label>
@@ -21,6 +16,6 @@
 	  </div>
 	</body>
 	
-	<script src='index.js' type='module'></script>
+	<script src='js/index.js' type='module'></script>
 
 </html>

@@ -16,8 +16,23 @@
     "url": "https://github.com/Thomas-Boi/UwUMotionDetection/issues"
   },
   "homepage": "https://github.com/Thomas-Boi/UwUMotionDetection#readme",
+  "eslintConfig": {
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+      "ecmaVersion": 13,
+      "sourceType": "module"
+    },
+    "rules": {
+      "no-extra-semi": "warn"
+    }
+  },
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1640029074",
-    "@mediapipe/hands": "^0.4.1635986972"
+    "@mediapipe/hands": "^0.4.1635986972",
+    "eslint": "^8.6.0"
   }
 }
