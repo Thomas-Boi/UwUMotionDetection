@@ -1,7 +1,10 @@
 import {WRIST_INDEX} from "./handsUtil"
 import { Results } from "@mediapipe/hands"
+import { HandTracker } from "./HandTracker"
 
-const messageElem = document.getElementById("message")
+const horizontalMsgElem = document.getElementById("horizontalMessageBox")
+const verticalMsgElem = document.getElementById("verticalMessageBox")
+const depthMsgElem = document.getElementById("depthMessageBox")
 
 /**
  * Use the HandTracker's data and manipulate the scene using it.
@@ -13,30 +16,61 @@ export class Controller {
 	 * @param prevResults the result of the data parsing.
 	 */
 	onResultsCallback(results: Results, prevResults: Results | null) {
-		let txt = "NONE"
+		let horizontalMsg = "NONE"
+		let verticalMsg = "NONE"
+		let depthMsg = "NONE"
+
 		// only care about 1 hand
 		let hand = results.multiHandLandmarks[0]
 
 		if (prevResults) {
 			let prevHand = prevResults.multiHandLandmarks[0]
 
-			try {
-				let delta = hand[WRIST_INDEX].x - prevHand[WRIST_INDEX].x
+			let horizontalDelta = this.getDelta(hand[WRIST_INDEX].x, prevHand[WRIST_INDEX].x)
+			if (horizontalDelta == 0) horizontalMsg = "STAY"
+			else if (horizontalDelta > 0) horizontalMsg = "RIGHT"
+			else horizontalMsg = "LEFT"
 
-				// round to 2 decimal place, see https://stackoverflow.com/a/11832950/11683637
-				delta = Math.round(delta * 100) / 100
+			let verticalDelta = this.getDelta(hand[WRIST_INDEX].y, prevHand[WRIST_INDEX].y)
+			if (verticalDelta == 0) verticalMsg = "STAY"
+			else if (verticalDelta > 0) verticalMsg = "UP"
+			else verticalMsg = "DOWN"
 
-				if (delta == 0) txt = "STAY"
-				else if (delta > 0) txt = "RIGHT"
-				else txt = "LEFT"
-			}
-			catch(e) {
-				console.log("Multi handlandmarks: ", results.multiHandLandmarks)
-				console.log("Hand: ", hand)
-				console.log("prevHandCoord", prevHand)
-			}
+			let depthDelta = this.getDelta(hand[WRIST_INDEX].z, prevHand[WRIST_INDEX].z)
+			if (depthDelta == 0) depthMsg = "STAY"
+			else if (depthDelta > 0) depthMsg = "TOWARD USER"
+			else depthMsg = "AWAY FROM USER"
+
 		}
 
-		messageElem.textContent = txt
+		horizontalMsgElem.textContent = horizontalMsg
+		verticalMsgElem.textContent = verticalMsg
+		depthMsgElem.textContent = depthMsg
+	}
+
+	/**
+	 * Get the difference between 2 numbers. Also round it
+	 * to decimalPlace.
+	 * @param a, the first number. 
+	 * @param b, the second number.
+	 * @param decimalPlace, how much we are rounding the delta result.
+	 * Default to 2 decimal place.
+	 * @returns 
+	 */
+	getDelta(a: number, b: number, decimalPlace: number=2) {
+		let delta = a - b
+
+		// round to x decimal place, see https://stackoverflow.com/a/11832950/11683637
+		let decimalConvertor = 10 ** decimalPlace
+		delta = Math.round(delta * decimalConvertor) / decimalConvertor
+		return delta
+	}
+
+	/**
+	 * Subscribe to the HandTracker object.
+	 * @param tracker a HandTracker object.
+	 */
+	subscribe(tracker: HandTracker) {
+		tracker.addListener(this.onResultsCallback.bind(this))
 	}
 }

@@ -6,11 +6,13 @@
 	</head>
 	<body>
 	  <div class="container">
-			<!-- <video id="input_video" width="500px" height="300px"></video> -->
-			<div id="message">
+			<div>
+				<span>Horizontal: </span> <span id='horizontalMessageBox'>NONE</span>
+				<span>Vertical: </span><span id='verticalMessageBox'>NONE</span>
+				<span>Depth: </span><span id='depthMessageBox'>NONE</span>
 			</div>
-			<label for='running'>Is Running<input type='checkbox' id='runningCheckbox' checked></label>
-			
+			<label for='running'>Is Running<input type='checkbox' id='runningCheckbox'></label>
+			<div>FPS: <span id='fps'></span></div>
 	  </div>
 	</body>
 	

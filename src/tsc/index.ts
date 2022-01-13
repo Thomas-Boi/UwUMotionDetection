@@ -8,15 +8,21 @@ main()
 function main() {
   const tracker = new HandTracker()
   const inputSource = new InputSource()
+
+  // for testing, do not hide the video
+  inputSource.initVideoElement(false)
+
   inputSource.initCamera(tracker)
   const controller = new Controller()
-  tracker.addListener(controller.onResultsCallback)
+  controller.subscribe(tracker)
 
   inputSource.start()
+  let checkbox = <HTMLInputElement> document.getElementById("runningCheckbox")
+  checkbox.checked = true
 
   // for testing
-  // document.getElementById("runningCheckbox").onclick = () => {
-  //   isRunning = !isRunning
-  // }
+  checkbox.onclick = () => {
+    inputSource.isRunning ? inputSource.stop() : inputSource.start()
+  }
 
 }
