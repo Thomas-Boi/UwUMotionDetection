@@ -1,4 +1,4 @@
-import {WRIST_INDEX} from "./handsUtil"
+import {LANDMARK_INDEX} from "./handsUtil"
 import { Results } from "@mediapipe/hands"
 import { HandTracker } from "./HandTracker"
 
@@ -15,31 +15,36 @@ export class Controller {
 	 * @param results the result of the data parsing.
 	 * @param prevResults the result of the data parsing.
 	 */
-	onResultsCallback(results: Results, prevResults: Results | null) {
+	onResultsCallback(results: Results | null, prevResults: Results | null) {
 		let horizontalMsg = "NONE"
 		let verticalMsg = "NONE"
 		let depthMsg = "NONE"
+		if (results.multiHandLandmarks && results.multiHandLandmarks.length != 0) {
+			// only care about 1 hand
+			let hand = results.multiHandLandmarks[0]
 
-		// only care about 1 hand
-		let hand = results.multiHandLandmarks[0]
+			if (prevResults && prevResults.multiHandLandmarks.length != 0) {
+				let prevHand = prevResults.multiHandLandmarks[0]
 
-		if (prevResults) {
-			let prevHand = prevResults.multiHandLandmarks[0]
+				// has to flip horizontal footage since camera flips the view
+				let horizontalDelta = -this.getDelta(hand[LANDMARK_INDEX.WRIST].x, prevHand[LANDMARK_INDEX.WRIST].x)
+				if (horizontalDelta == 0) horizontalMsg = "STAY"
+				else if (horizontalDelta > 0) horizontalMsg = "RIGHT"
+				else horizontalMsg = "LEFT"
 
-			let horizontalDelta = this.getDelta(hand[WRIST_INDEX].x, prevHand[WRIST_INDEX].x)
-			if (horizontalDelta == 0) horizontalMsg = "STAY"
-			else if (horizontalDelta > 0) horizontalMsg = "RIGHT"
-			else horizontalMsg = "LEFT"
+				// has to flip vertical footage since image y-axis run top to bottom (increase downward like js)
+				let verticalDelta = -this.getDelta(hand[LANDMARK_INDEX.WRIST].y, prevHand[LANDMARK_INDEX.WRIST].y)
+				if (verticalDelta == 0) verticalMsg = "STAY"
+				else if (verticalDelta > 0) verticalMsg = "UP"
+				else verticalMsg = "DOWN"
 
-			let verticalDelta = this.getDelta(hand[WRIST_INDEX].y, prevHand[WRIST_INDEX].y)
-			if (verticalDelta == 0) verticalMsg = "STAY"
-			else if (verticalDelta > 0) verticalMsg = "UP"
-			else verticalMsg = "DOWN"
+				// can't use wrist for z index
+				let depthDelta = this.getDelta(hand[LANDMARK_INDEX.MID_FINGER_MCP].z, prevHand[LANDMARK_INDEX.MID_FINGER_MCP].z)
+				if (depthDelta == 0) depthMsg = "STAY"
+				else if (depthDelta > 0) depthMsg = "TOWARD USER"
+				else depthMsg = "AWAY FROM USER"
 
-			let depthDelta = this.getDelta(hand[WRIST_INDEX].z, prevHand[WRIST_INDEX].z)
-			if (depthDelta == 0) depthMsg = "STAY"
-			else if (depthDelta > 0) depthMsg = "TOWARD USER"
-			else depthMsg = "AWAY FROM USER"
+			}
 
 		}
 

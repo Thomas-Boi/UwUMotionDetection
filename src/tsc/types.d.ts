@@ -1,3 +1,6 @@
 import { Results } from "@mediapipe/hands";
 
-export type HandTrackerListener = (results: Results, prevResults: Results | null) => (void);
+/**
+ * Defines a function that can subscribe to the HandTracker.
+ */
+export type HandTrackerListener = (results: Results | null, prevResults: Results | null) => (void)

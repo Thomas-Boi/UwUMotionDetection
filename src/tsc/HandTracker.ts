@@ -46,10 +46,8 @@ export class HandTracker {
 	 * Handle the onResults event of the Hands tracker.
 	 */
 	onResultsCallback(results: Results) {
-		if (results.multiHandLandmarks && results.multiHandLandmarks.length != 0) {
-			this.listeners.forEach(listener => listener(results, this.prevResults))
-			this.prevResults = results
-		}
+		this.listeners.forEach(listener => listener(results, this.prevResults))
+		this.prevResults = results
 	}
 
 	/**

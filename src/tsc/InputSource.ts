@@ -58,7 +58,7 @@ export class InputSource {
 				// do this to ensure that we only process the frame
 				// according to the interval set below
 				if (!this.processedFrame) {
-					this.fps++
+					// this.fps++
 					await tracker.hands.send({image: this.videoElement})
 					this.processedFrame = true
 				}
@@ -67,7 +67,7 @@ export class InputSource {
 			height: 72
 		})
 
-		setInterval(this.displayFPS.bind(this), 1000)
+		// setInterval(this.displayFPS.bind(this), 1000)
 		setInterval(this.setProcessedFrame.bind(this, false), UPDATE_STEP_IN_SEC)
 	}
 

@@ -1,5 +1,8 @@
-const WRIST_INDEX = 0
+const LANDMARK_INDEX = {
+	WRIST: 0,
+	MID_FINGER_MCP: 9
+}
 
 export {
-	WRIST_INDEX
+	LANDMARK_INDEX
 }
