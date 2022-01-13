@@ -25,8 +25,7 @@ export class HandTracker {
 
 	constructor() {
 		let hands = new Hands({locateFile: (file) => {
-			console.log(file)
-			return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+			return `build/libs/${file}`
 		}})
 
 		hands.setOptions({
@@ -36,7 +35,7 @@ export class HandTracker {
 			minTrackingConfidence: 0.5
 		})
 
-		hands.onResults(this.onResultsCallback)
+		hands.onResults(this.onResultsCallback.bind(this))
 
 		this.hands = hands
 		this.prevResults = null
