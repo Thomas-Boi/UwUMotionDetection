@@ -1,10 +1,28 @@
-import {Hands} from "@mediapipe/hands"
+import { Hands, Results } from "@mediapipe/hands"
+import { HandTrackerListener } from "./types"
+
 
 /**
  * Track the hands using the MediaPipe Hands then preprocess
  * it to intepret gestures.
  */
 export class HandTracker {
+	/**
+	 * The MediaPipe Hands object.
+	 */
+	hands: Hands
+
+	/**
+	 * Track the previous results that we scanned.
+	 */
+	prevResults: Results | null
+
+	/**
+	 * The listeners that are registered to get data from HandTracker
+	 * once it finishes parsing it.
+	 */
+	listeners: Array<HandTrackerListener>
+
 	constructor() {
 		let hands = new Hands({locateFile: (file) => {
 			console.log(file)
@@ -20,29 +38,15 @@ export class HandTracker {
 
 		hands.onResults(this.onResultsCallback)
 
-		/**
-		 * The MediaPipe Hands object.
-		 * @type { Hands }
-		 */
 		this.hands = hands
-
-		/**
-		 * Track the previous results that we scanned.
-		 */
 		this.prevResults = null
-
-		/**
-		 * The listeners that are registered to get data from HandTracker
-		 * once it finishes parsing it.
-		 */
 		this.listeners = []
 	}
 
 	/**
 	 * Handle the onResults event of the Hands tracker.
-	 * @param {Results} results the result of the data parsing.
 	 */
-	onResultsCallback(results) {
+	onResultsCallback(results: Results) {
 		if (results.multiHandLandmarks && results.multiHandLandmarks.length != 0) {
 			this.listeners.forEach(listener => listener(results, this.prevResults))
 			this.prevResults = results
@@ -51,9 +55,9 @@ export class HandTracker {
 
 	/**
 	 * Add a Listener to the HandTracker.
-	 * @param {Function} listener 
+	 * @param listener a new listener.
 	 */
-	addListener(listener) {
+	addListener(listener: HandTrackerListener) {
 		this.listeners.push(listener)
 	}
 }

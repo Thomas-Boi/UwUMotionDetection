@@ -1,4 +1,5 @@
 import {WRIST_INDEX} from "./handsUtil.js"
+import { Results } from "@mediapipe/hands"
 
 const messageElem = document.getElementById("message")
 
@@ -8,10 +9,10 @@ const messageElem = document.getElementById("message")
 export class Controller {
 	/**
 	 * Handle the onResults event of the Hands tracker.
-	 * @param {Results} results the result of the data parsing.
-	 * @param {Results | null} prevResults the result of the data parsing.
+	 * @param results the result of the data parsing.
+	 * @param prevResults the result of the data parsing.
 	 */
-	onResultsCallback(results, prevResults) {
+	onResultsCallback(results: Results, prevResults: Results | null) {
 		let txt = "NONE"
 		// only care about 1 hand
 		let hand = results.multiHandLandmarks[0]

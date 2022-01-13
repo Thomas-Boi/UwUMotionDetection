@@ -21,7 +21,15 @@
       "browser": true,
       "es2021": true
     },
-    "extends": "eslint:recommended",
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "extends": [
+      "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended"
+    ],
     "parserOptions": {
       "ecmaVersion": 13,
       "sourceType": "module"
@@ -32,7 +40,9 @@
   },
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1640029074",
-    "@mediapipe/hands": "^0.4.1635986972",
+    "@mediapipe/hands": "^0.4.1635986972"
+  },
+  "devDependencies": {
     "eslint": "^8.6.0"
   }
 }

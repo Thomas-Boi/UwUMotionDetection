@@ -1,11 +1,21 @@
 import {Camera} from "@mediapipe/camera_utils"
+import { HandTracker } from "./HandTracker"
 
 /**
  * Handle work related to the camera.
  */
 export class InputSource {
+	/**
+	 * The video element that we are storing the stream in.
+	 */
+	videoElement: HTMLVideoElement
+
+	/**
+	 * The MediaPipe Camera object.
+	 */
+	camera: Camera
+
 	constructor() {
-		this.isRunning = true
 		this.videoElement = null
 		this.camera = null
 	}
@@ -14,16 +24,14 @@ export class InputSource {
 	 * Init the camera.
 	 * This is taken from the camera util script
 	 * and relies on having a video element
-	 * @param {HandTracker} tracker the Hands tracker.
+	 * @param tracker the Hands tracker.
 	 */
-	initCamera(tracker) {
+	initCamera(tracker: HandTracker) {
 		// need to init a <video> element in the DOM first
 		this._initVideoElement()
 
 		this.camera = new Camera(this.videoElement, {
 			onFrame: async () => {
-				if (!this.isRunning) return Promise.resolve()
-
 				await tracker.hands.send({image: this.videoElement})
 			},
 			width: 128,
