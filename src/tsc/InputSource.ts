@@ -44,7 +44,7 @@ export class InputSource {
 	 */
 	_initVideoElement() {
 		let videoElement = document.createElement("video")
-		videoElement.style.display = "none"
+		// videoElement.style.display = "none"
 		document.body.append(videoElement)
 		this.videoElement = videoElement
 	}

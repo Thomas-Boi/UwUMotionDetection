@@ -1,4 +1,4 @@
-import {WRIST_INDEX} from "./handsUtil.js"
+import {WRIST_INDEX} from "./handsUtil"
 import { Results } from "@mediapipe/hands"
 
 const messageElem = document.getElementById("message")

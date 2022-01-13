@@ -1,6 +1,6 @@
-import { InputSource } from "./InputSource.js"
-import { HandTracker } from "./HandTracker.js"
-import { Controller } from "./Controller.js"
+import { InputSource } from "./InputSource"
+import { HandTracker } from "./HandTracker"
+import { Controller } from "./Controller"
 
 
 
