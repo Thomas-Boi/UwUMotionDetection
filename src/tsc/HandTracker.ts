@@ -46,7 +46,12 @@ export class HandTracker {
 	 * Handle the onResults event of the Hands tracker.
 	 */
 	onResultsCallback(results: Results) {
-		this.listeners.forEach(listener => listener(results, this.prevResults))
+		let bothValid = results.multiHandLandmarks 
+			&& results.multiHandLandmarks.length != 0
+			&& this.prevResults 
+			&& this.prevResults.multiHandLandmarks.length != 0
+
+		this.listeners.forEach(listener => listener(results, this.prevResults, bothValid))
 		this.prevResults = results
 	}
 
