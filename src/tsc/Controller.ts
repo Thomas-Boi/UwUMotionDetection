@@ -1,6 +1,7 @@
 import {LANDMARK_INDEX} from "./handsUtil"
 import { Results } from "@mediapipe/hands"
 import { HandTracker } from "./HandTracker"
+import * as BABYLON from "babylonjs"
 
 const horizontalMsgElem = document.getElementById("horizontalMessageBox")
 const verticalMsgElem = document.getElementById("verticalMessageBox")
@@ -10,6 +11,52 @@ const depthMsgElem = document.getElementById("depthMessageBox")
  * Use the HandTracker's data and manipulate the scene using it.
  */
 export class Controller {
+	/**
+	 * A THREE Scene object.
+	 */
+	scene: BABYLON.Scene
+
+	/**
+	 * A THREE Mesh object
+	 */
+	mesh: object
+
+
+	constructor() {
+		this.scene = null 
+		this.mesh = null
+		this.init3DScene()
+	}
+
+	init3DScene() {
+		const canvas = <HTMLCanvasElement> document.getElementById("canvas")
+		const engine = new BABYLON.Engine(canvas, true)
+
+		this.scene = new BABYLON.Scene(engine)
+		const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, new BABYLON.Vector3(0, 0, 0), this.scene)
+		camera.attachControl(canvas, true)
+		
+		const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), this.scene)
+		const box = BABYLON.MeshBuilder.CreateBox("box", {
+			faceColors: [new BABYLON.Color4(1, 0, 0, 0)]
+		}, this.scene)
+
+		// attach the render callback
+		engine.runRenderLoop(this.render.bind(this))
+
+		// handle resizing
+		window.addEventListener("resize", () => {
+			engine.resize()
+		})
+	}
+
+	render() {
+
+		// need to call this to update the scene
+		// kind of like a OpenGL draw function
+		this.scene.render()
+	}
+
 	/**
 	 * Handle the onResults event of the Hands tracker.
 	 * @param results the result of the data parsing.
