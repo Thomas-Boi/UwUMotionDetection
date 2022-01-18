@@ -21,7 +21,7 @@ export class HandTracker {
 	 * The listeners that are registered to get data from HandTracker
 	 * once it finishes parsing it.
 	 */
-	listeners: Array<HandTrackerListener>
+	listeners: Map<String, HandTrackerListener>
 
 	constructor() {
 		let hands = new Hands({locateFile: (file) => {
@@ -39,17 +39,17 @@ export class HandTracker {
 
 		this.hands = hands
 		this.prevResults = null
-		this.listeners = []
+		this.listeners = new Map()
 	}
 
 	/**
 	 * Handle the onResults event of the Hands tracker.
 	 */
 	onResultsCallback(results: Results) {
-		let bothValid = results.multiHandLandmarks 
-			&& results.multiHandLandmarks.length != 0
+		let bothValid = results.multiHandWorldLandmarks 
+			&& results.multiHandWorldLandmarks.length != 0
 			&& this.prevResults 
-			&& this.prevResults.multiHandLandmarks.length != 0
+			&& this.prevResults.multiHandWorldLandmarks.length != 0
 
 		this.listeners.forEach(listener => listener(results, this.prevResults, bothValid))
 		this.prevResults = results
@@ -58,8 +58,21 @@ export class HandTracker {
 	/**
 	 * Add a Listener to the HandTracker.
 	 * @param listener a new listener.
+	 * @param key the name of the listener. Default is
+	 * a random value if you don't intend to reaccess the
+	 * listener.
 	 */
-	addListener(listener: HandTrackerListener) {
-		this.listeners.push(listener)
+	addListener(listener: HandTrackerListener, key: String=null) {
+		if (key === null) key = `${new Date().getTime()}`
+		this.listeners.set(key, listener)
+	}
+
+	/**
+	 * Remove a listener based on the name.
+	 * @param key the listener's name that we want to remove.
+	 * @return true if the object was deleted. Else, false.
+	 */
+	removeListener(key: String) {
+		return this.listeners.delete(key)
 	}
 }

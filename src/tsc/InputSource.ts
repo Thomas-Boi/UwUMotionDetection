@@ -2,7 +2,7 @@ import {Camera} from "@mediapipe/camera_utils"
 import { HandTracker } from "./HandTracker"
 
 const FPSElem = document.querySelector("#fps")
-const STEPS_PER_SEC = 10
+const STEPS_PER_SEC = 15
 const UPDATE_STEP_IN_SEC = 1000 / STEPS_PER_SEC
 
 /**
