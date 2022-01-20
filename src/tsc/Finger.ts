@@ -3,6 +3,15 @@ import { Vector3 } from "babylonjs"
 import { LandmarkList } from "@mediapipe/hands"
 import { fitOnLine } from "./util"
 
+/**
+ * The angles to determine the direction the
+ * finger is pointing towards.
+ */
+const NEAR_RIGHT_AXIS_BOUND = Math.PI / 3
+const NEAR_LEFT_AXIS_BOUND = Math.PI * 2 /3
+const NEAR_UP_LEFT_AXIS_BOUND = Math.PI / 6
+const NEAR_UP_RIGHT_AXIS_BOUND = Math.PI * 5 / 6
+
 /*
 	* The amount of variation we are giving 
 	* the PIP and DIP when considering whether they are on 
@@ -44,7 +53,7 @@ export class Finger {
 
 	constructor(joints: LandmarkList) {
 		this.isStraight = false
-		this.direction = Vector3.Left() 
+		this.direction = Vector3.Zero() 
 		this.setJoints(joints)
 	}
 
@@ -69,6 +78,16 @@ export class Finger {
 		// get the vector between the two
 		let line = tcp.subtract(mcp)
 
+		this.findFingerDirection(line)
+		this.findStraightness(line, tcp)
+	}
+
+	/**
+	 * Find whether the finger is straight.
+	 * @param line the vector we are checking whether the line is on it.
+	 * @param tcp the TCP point as a Vector3.
+	 */
+	findStraightness(line: Vector3, tcp: Vector3) {
 		// finding whether finger is straight strategy:
 		// find the vector between the MCP and TIP.
 		// determine whether PIP and DIP fit on this line
@@ -79,22 +98,63 @@ export class Finger {
 		// to do so, we determine how close a point is to the vector
 		// above. If it's within the VARIATION allowed passed in, we consider
 		// it to be "on the line".
+
 		let pip = new Vector3(this.joints[FINGER_INDICES.PIP].x, this.joints[FINGER_INDICES.PIP].y, this.joints[FINGER_INDICES.PIP].z) 
 		let pipOnLine = fitOnLine(pip, tcp, line, VARIATION)
 		let dip = new Vector3(this.joints[FINGER_INDICES.DIP].x, this.joints[FINGER_INDICES.DIP].y, this.joints[FINGER_INDICES.DIP].z) 
 		let dipOnLine = fitOnLine(dip, tcp, line, VARIATION)
 		this.isStraight = pipOnLine && dipOnLine
-
-		// finding direction of the finger.
-		console.log("angle 1", Vector3.GetAngleBetweenVectors(line, Vector3.Left(), Vector3.Right()))
-		console.log("angle 2", Vector3.GetAngleBetweenVectors(line, Vector3.Left(), Vector3.Up()))
-
 	}
 
 	/**
 	 * Find the direction of the finger
+	 * @param line the line that we are finding the direction
+	 * of.
 	 */
-	findFingerDirection() {
+	findFingerDirection(line: Vector3) {
+		// finding direction of the finger.
+		this.direction = Vector3.Zero()
+		// check the vector with each main axis vector to 
+		// determine the closest direction it points to.
+		// to do this, first check x and y axis without z
+		// then finally, check z.
+
+		// we change the normal argument to right hand system just for this check
+		let angleRad = Vector3.GetAngleBetweenVectors(
+			new Vector3(line.x ,line.y, 0), Vector3.Right(), Vector3.Forward(true))
+
+		let absAngleRad = Math.abs(angleRad)
+
+		// check whether the angle is < 60 degrees to the right x-axis
+		// this means the direction has at least (1, 0, 0) no matter what
+		if (absAngleRad < NEAR_RIGHT_AXIS_BOUND) {
+			this.direction.addInPlace(Vector3.Right())	
+		}
+		// if angle is > 120, we know it's nearer to the left hand side
+		else if (absAngleRad > NEAR_LEFT_AXIS_BOUND) {
+			this.direction.addInPlace(Vector3.Left())	
+		}
+
+		// check how close the vector is to the y-axis for both up and downs
+		if (NEAR_UP_LEFT_AXIS_BOUND < angleRad && angleRad < NEAR_UP_RIGHT_AXIS_BOUND) {
+			this.direction.addInPlace(Vector3.Up())
+		}
+		else if (-NEAR_UP_LEFT_AXIS_BOUND < angleRad && angleRad < -NEAR_UP_RIGHT_AXIS_BOUND) {
+			this.direction.addInPlace(Vector3.Down())
+		}
+
+		// now check the z-axis by checking z-y axis
+		// z-axis can reuse the angle for x-axis
+		let zAbsAngleRad = Math.abs(Vector3.GetAngleBetweenVectors(
+			new Vector3(0, line.y, line.z), DIRECTION.FORWARD(), Vector3.Left()))
+
+		if (zAbsAngleRad < NEAR_RIGHT_AXIS_BOUND) {
+			this.direction.addInPlace(DIRECTION.FORWARD())	
+		}
+		// if angle is > 120, we know it's nearer to the left hand side
+		else if (zAbsAngleRad > NEAR_LEFT_AXIS_BOUND) {
+			this.direction.addInPlace(DIRECTION.BACKWARD())	
+		}
 
 	}
 }

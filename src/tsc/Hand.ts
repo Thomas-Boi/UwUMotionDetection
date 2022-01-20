@@ -57,7 +57,17 @@ export class Hand {
 		this.middle.setJoints(hand.slice(LANDMARK_INDEX.MIDDLE_FINGER_MCP, LANDMARK_INDEX.MIDDLE_FINGER_TIP + 1))
 		this.ring.setJoints(hand.slice(LANDMARK_INDEX.RING_FINGER_MCP, LANDMARK_INDEX.RING_FINGER_TIP + 1))
 		this.pinky.setJoints(hand.slice(LANDMARK_INDEX.PINKY_MCP, LANDMARK_INDEX.PINKY_TIP + 1))
+
+		/**
+		 * Analyze the fingers.
+		 */
+		this.thumb.analyzeFinger();
+		this.index.analyzeFinger();
+		this.middle.analyzeFinger();
+		this.ring.analyzeFinger();
+		this.pinky.analyzeFinger();
 	}
+
 
 	/**
 	 * Determine the gesture that the hand is making.

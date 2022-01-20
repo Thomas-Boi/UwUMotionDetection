@@ -17,12 +17,5 @@ function main() {
   controller.subscribe(tracker)
 
   inputSource.start()
-  let checkbox = <HTMLInputElement> document.getElementById("runningCheckbox")
-  checkbox.checked = true
-
-  // for testing
-  checkbox.onclick = () => {
-    inputSource.isRunning ? inputSource.stop() : inputSource.start()
-  }
 
 }

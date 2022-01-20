@@ -80,7 +80,6 @@ export class Controller {
 	 */
 	firstFrameCallback(tracker: HandTracker, key: string, results: Results | null, prevResults: Results | null, bothValid: boolean) {
 		// only care about 1 hand
-		console.log("First frame called")
 		tracker.removeListener(key)
 		tracker.addListener(this.onResultsCallback.bind(this))
 		document.getElementById("loading").style.display = "none"
