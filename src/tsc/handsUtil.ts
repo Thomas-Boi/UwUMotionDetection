@@ -1,3 +1,5 @@
+import { Vector3 } from "babylonjs/Maths/math.vector"
+
 /**
  * The indices that correspond to the enum names within
  * a LandmarkList.
@@ -46,7 +48,19 @@ enum GESTURES {
 	NONE // none of the above
 }
 
+const DIRECTION = {
+	UP: Vector3.Up,
+	DOWN: Vector3.Down,
+	LEFT: Vector3.Left,
+	RIGHT: Vector3.Right,
+	// positive z value of the finger in MediaPipe goes away from the screen
+	// their doc said the smaller the value, the closer the z-value is to the screen.
+	FORWARD: Vector3.Backward, 
+	BACKWARD: Vector3.Forward
+}
+
 export {
 	LANDMARK_INDEX,
-	GESTURES
+	GESTURES,
+	DIRECTION
 }
