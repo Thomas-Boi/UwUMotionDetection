@@ -1,4 +1,4 @@
-import {GESTURES } from "./handsUtil"
+import {GESTURES, LANDMARK_AMOUNT } from "./handsUtil"
 import { Results } from "@mediapipe/hands"
 import { HandTracker } from "./HandTracker"
 import * as BABYLON from "babylonjs"
@@ -40,7 +40,9 @@ export class Controller {
 	constructor() {
 		this.scene = null 
 		this.mesh = null
-		this.hand = null
+		// init with random values
+		this.hand = new Hand(new Array(LANDMARK_AMOUNT).fill(0))
+		this.prevHand = new Hand(new Array(LANDMARK_AMOUNT).fill(0))
 		this.init3DScene()
 	}
 
@@ -70,12 +72,18 @@ export class Controller {
 	 * Handle the result for the first frame received by
 	 * the HandTracker. This include removing the
 	 * loading icon, setting up the hand etc.
+	 * @param tracker the HandTracker.
+	 * @param key the listener name we subscribed to tracker.
+	 * @param results 
+	 * @param prevResults 
+	 * @param bothValid 
 	 */
-	firstFrameCallback(results: Results | null, prevResults: Results | null, bothValid: boolean) {
+	firstFrameCallback(tracker: HandTracker, key: string, results: Results | null, prevResults: Results | null, bothValid: boolean) {
 		// only care about 1 hand
-		this.hand = new Hand(results.multiHandLandmarks[0])
-		this.prevHand = new Hand(results.multiHandLandmarks[0])
-
+		console.log("First frame called")
+		tracker.removeListener(key)
+		tracker.addListener(this.onResultsCallback.bind(this))
+		document.getElementById("loading").style.display = "none"
 	}
 
 	/**
@@ -113,10 +121,14 @@ export class Controller {
 	}
 
 	/**
-	 * Subscribe to the HandTracker object.
+	 * Subscribe to the HandTracker object for the first time.
+	 * This function will be call the first time the HandTracker
+	 * is initialize. Afterwards, it will switch to the usual
+	 * onFrameCallback.
 	 * @param tracker a HandTracker object.
 	 */
 	subscribe(tracker: HandTracker) {
-		tracker.addListener(this.onResultsCallback.bind(this))
+		let key = "firstFrame"
+		tracker.addListener(this.firstFrameCallback.bind(this, tracker, key), key)
 	}
 }

@@ -1,4 +1,4 @@
-import { Vector3 } from "babylonjs/Maths/math.vector"
+import { Vector3 } from "babylonjs"
 
 /**
  * The indices that correspond to the enum names within
@@ -27,6 +27,8 @@ const LANDMARK_INDEX = {
 	PINKY_DIP: 19,
 	PINKY_TIP: 20
 }
+
+const LANDMARK_AMOUNT = 21
 
 enum FINGER_STATE {
 	OPEN,
@@ -62,5 +64,6 @@ const DIRECTION = {
 export {
 	LANDMARK_INDEX,
 	GESTURES,
-	DIRECTION
+	DIRECTION,
+	LANDMARK_AMOUNT
 }

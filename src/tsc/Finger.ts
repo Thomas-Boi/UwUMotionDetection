@@ -43,9 +43,8 @@ export class Finger {
 	direction: Vector3
 
 	constructor(joints: LandmarkList) {
-		this.joints = null
-		this.isStraight = null
-		this.direction = null
+		this.isStraight = false
+		this.direction = Vector3.Left() 
 		this.setJoints(joints)
 	}
 
@@ -55,42 +54,47 @@ export class Finger {
 	 */
 	setJoints(joints: LandmarkList) {
 		this.joints = joints
-		this.isStraight = this.isFingerStraight()
 	}
 
 	/**
-	 * Determine whether the finger passed in is straight/fully extended.
-	 * The function does take in minor variation.
+	 * Analyze the straightness of the finger and the direction it's pointing at.
+	 * The function does take in minor variation when evaluating straightness.
 	 * @param joints the 4 joints that make up the finger.
 	 * MUST be in the order of MCP, PIP, DIP and TIP.
-	 * @return whether the finger is straight.
 	 */
-	isFingerStraight(): boolean {
-		// strategy: find the vector between the MCP and TIP
-		// determine whether PIP and DIP fit on this line
-		// if both do => they fit.
-
+	analyzeFinger() {
 		let tcp = new Vector3(this.joints[FINGER_INDICES.TIP].x, this.joints[FINGER_INDICES.TIP].y, this.joints[FINGER_INDICES.TIP].z) 
 		let mcp = new Vector3(this.joints[FINGER_INDICES.MCP].x, this.joints[FINGER_INDICES.MCP].y, this.joints[FINGER_INDICES.MCP].z) 
 
 		// get the vector between the two
 		let line = tcp.subtract(mcp)
 
+		// finding whether finger is straight strategy:
+		// find the vector between the MCP and TIP.
+		// determine whether PIP and DIP fit on this line
+		// if both do => they fit.
 		// due to minor variation in hand size,
 		// searching using the exact values on the eqn
 		// wouldn't be a good idea => add a radius around the search area.
 		// to do so, we determine how close a point is to the vector
-		// above. If it's within the `variation` passed in, we consider
+		// above. If it's within the VARIATION allowed passed in, we consider
 		// it to be "on the line".
-
-		// to do this, we will make use of projection and Babylon provides
-		// some method to do this
-
 		let pip = new Vector3(this.joints[FINGER_INDICES.PIP].x, this.joints[FINGER_INDICES.PIP].y, this.joints[FINGER_INDICES.PIP].z) 
 		let pipOnLine = fitOnLine(pip, tcp, line, VARIATION)
 		let dip = new Vector3(this.joints[FINGER_INDICES.DIP].x, this.joints[FINGER_INDICES.DIP].y, this.joints[FINGER_INDICES.DIP].z) 
 		let dipOnLine = fitOnLine(dip, tcp, line, VARIATION)
+		this.isStraight = pipOnLine && dipOnLine
 
-		return pipOnLine && dipOnLine
+		// finding direction of the finger.
+		console.log("angle 1", Vector3.GetAngleBetweenVectors(line, Vector3.Left(), Vector3.Right()))
+		console.log("angle 2", Vector3.GetAngleBetweenVectors(line, Vector3.Left(), Vector3.Up()))
+
+	}
+
+	/**
+	 * Find the direction of the finger
+	 */
+	findFingerDirection() {
+
 	}
 }
