@@ -1,8 +1,9 @@
-import {GESTURES, LANDMARK_INDEX} from "./handsUtil"
-import { LandmarkList, Results } from "@mediapipe/hands"
+import {GESTURES } from "./handsUtil"
+import { Results } from "@mediapipe/hands"
 import { HandTracker } from "./HandTracker"
 import * as BABYLON from "babylonjs"
 import { Hand } from "./Hand"
+import { getDelta } from "./util"
 
 const TRANSLATE_MULTIPLIER = 3
 
@@ -25,10 +26,21 @@ export class Controller {
 	 */
 	camera: BABYLON.Camera
 
+	/**
+	 * Hold information on the state of the user's current hand.
+	 */
+	hand: Hand
+
+	/**
+	 * Hold information on the state of the user's previous hand.
+	 */
+	prevHand: Hand
+
 
 	constructor() {
 		this.scene = null 
 		this.mesh = null
+		this.hand = null
 		this.init3DScene()
 	}
 
@@ -57,10 +69,12 @@ export class Controller {
 	/**
 	 * Handle the result for the first frame received by
 	 * the HandTracker. This include removing the
-	 * loading icon, c
+	 * loading icon, setting up the hand etc.
 	 */
-	firstFrameCallback() {
-
+	firstFrameCallback(results: Results | null, prevResults: Results | null, bothValid: boolean) {
+		// only care about 1 hand
+		this.hand = new Hand(results.multiHandLandmarks[0])
+		this.prevHand = new Hand(results.multiHandLandmarks[0])
 
 	}
 
@@ -75,10 +89,10 @@ export class Controller {
 	onResultsCallback(results: Results | null, prevResults: Results | null, bothValid: boolean) {
 		if (!bothValid) return
 		// only care about 1 hand
-		let hand = results.multiHandLandmarks[0]
-		let prevHand = prevResults.multiHandLandmarks[0]
-		if (new Hand(hand).determineGesture() === GESTURES.FIST) {
-			this.translate(hand, prevHand)
+		this.hand.updateHand(results.multiHandLandmarks[0])
+		this.prevHand.updateHand(prevResults.multiHandLandmarks[0])
+		if (this.hand.determineGesture() === GESTURES.FIST) {
+			this.translate(this.hand, this.prevHand)
 		}
 	}
 
@@ -87,34 +101,15 @@ export class Controller {
 	 * @param hand the hand of this current frame.
 	 * @param prevHand the hand of the previous frame.
 	 */
-	translate(hand: LandmarkList, prevHand: LandmarkList) {
+	translate(hand: Hand, prevHand: Hand) {
 		// has to flip horizontal footage since camera flips the view
-		let horizontalDelta = -this.getDelta(hand[LANDMARK_INDEX.WRIST].x, prevHand[LANDMARK_INDEX.WRIST].x, 5)
+		let horizontalDelta = -getDelta(hand.wrist.x, prevHand.wrist.x, 5)
 
 		// has to flip vertical footage since image y-axis run top to bottom (increase downward like js)
-		let verticalDelta = -this.getDelta(hand[LANDMARK_INDEX.WRIST].y, prevHand[LANDMARK_INDEX.WRIST].y, 5)
-		console.log(hand)
+		let verticalDelta = -getDelta(hand.wrist.y, prevHand.wrist.y, 5)
 
 		this.mesh.translate(BABYLON.Axis.X, TRANSLATE_MULTIPLIER * horizontalDelta)
 		this.mesh.translate(BABYLON.Axis.Y, TRANSLATE_MULTIPLIER * verticalDelta)
-	}
-
-	/**
-	 * Get the difference between 2 numbers. Also round it
-	 * to decimalPlace.
-	 * @param a, the first number. 
-	 * @param b, the second number.
-	 * @param decimalPlace, how much we are rounding the delta result.
-	 * Default to 2 decimal place.
-	 * @returns 
-	 */
-	getDelta(a: number, b: number, decimalPlace: number=2) {
-		let delta = a - b
-
-		// round to x decimal place, see https://stackoverflow.com/a/11832950/11683637
-		let decimalConvertor = 10 ** decimalPlace
-		delta = Math.round(delta * decimalConvertor) / decimalConvertor
-		return delta
 	}
 
 	/**

@@ -1,4 +1,4 @@
-import { LandmarkList } from "@mediapipe/hands";
+import { LandmarkList, Landmark } from "@mediapipe/hands";
 import { LANDMARK_INDEX, GESTURES } from "./handsUtil";
 import { Finger } from "./Finger";
 
@@ -7,6 +7,11 @@ import { Finger } from "./Finger";
  * Represents a hand that was detected by the HandTracker.
  */
 export class Hand {
+	/**
+	 * The wrist of the hand
+	 */
+	wrist: Landmark
+
 	/**
 	 * The thumb joints.
 	 */
@@ -33,6 +38,7 @@ export class Hand {
 	pinky: Finger
 
 	constructor(hand: LandmarkList) {
+		this.wrist = hand[LANDMARK_INDEX.WRIST]
 		this.thumb = new Finger(hand.slice(LANDMARK_INDEX.THUMB_CMC, LANDMARK_INDEX.THUMB_TIP + 1))
 		this.index = new Finger(hand.slice(LANDMARK_INDEX.INDEX_FINGER_MCP, LANDMARK_INDEX.INDEX_FINGER_TIP + 1))
 		this.middle = new Finger(hand.slice(LANDMARK_INDEX.MIDDLE_FINGER_MCP, LANDMARK_INDEX.MIDDLE_FINGER_TIP + 1))
@@ -45,6 +51,7 @@ export class Hand {
 	 * @param hand a list of landmarks created by MediaPipe.
 	 */
 	updateHand(hand: LandmarkList) {
+		this.wrist = hand[LANDMARK_INDEX.WRIST]
 		this.thumb.setJoints(hand.slice(LANDMARK_INDEX.THUMB_CMC, LANDMARK_INDEX.THUMB_TIP + 1))
 		this.index.setJoints(hand.slice(LANDMARK_INDEX.INDEX_FINGER_MCP, LANDMARK_INDEX.INDEX_FINGER_TIP + 1))
 		this.middle.setJoints(hand.slice(LANDMARK_INDEX.MIDDLE_FINGER_MCP, LANDMARK_INDEX.MIDDLE_FINGER_TIP + 1))

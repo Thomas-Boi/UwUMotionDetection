@@ -1,8 +1,18 @@
 import {Camera} from "@mediapipe/camera_utils"
 import { HandTracker } from "./HandTracker"
 
-const FPSElem = document.querySelector("#fps")
+/**
+ * Tracks how many steps/update we can do per second.
+ * This frame cap improve performance (doesn't update unless needed).
+ * Also prevent the camera from taking duplicate images where the
+ * user's hand hasn't move => also improve performance so we don't
+ * update the app when we don't need to.
+ */
 const STEPS_PER_SEC = 15
+
+/**
+ * Tracks how long in second each step should take.
+ */
 const UPDATE_STEP_IN_SEC = 1000 / STEPS_PER_SEC
 
 /**
@@ -25,11 +35,6 @@ export class InputSource {
 	isRunning: boolean
 
 	/**
-	 * The FPS of the camera. Use only for testing
-	 */
-	fps: number
-
-	/**
 	 * Whether we have processed the frame within this step.
 	 */
 	processedFrame: boolean
@@ -39,7 +44,6 @@ export class InputSource {
 		this.videoElement = null
 		this.camera = null
 		this.isRunning = false
-		this.fps = 0
 		this.processedFrame = false
 	}
 
@@ -67,7 +71,6 @@ export class InputSource {
 			height: 72
 		})
 
-		// setInterval(this.displayFPS.bind(this), 1000)
 		setInterval(this.setProcessedFrame.bind(this, false), UPDATE_STEP_IN_SEC)
 	}
 
@@ -80,11 +83,6 @@ export class InputSource {
 		if (hideVid) videoElement.style.display = "none"
 		document.body.append(videoElement)
 		this.videoElement = videoElement
-	}
-
-	displayFPS() {
-		FPSElem.textContent = `${this.fps}`
-		this.fps = 0
 	}
 
 	/**

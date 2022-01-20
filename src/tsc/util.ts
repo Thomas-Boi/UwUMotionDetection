@@ -28,3 +28,21 @@ export function fitOnLine(point: Vector3, start: Vector3, vector: Vector3, varia
 	// and check that it's within the variation
 	return perpendicular.length() <= variation
 }
+
+/**
+ * Get the difference between 2 numbers. Also round it
+ * to decimalPlace.
+ * @param a, the first number. 
+ * @param b, the second number.
+ * @param decimalPlace, how much we are rounding the delta result.
+ * Default to 2 decimal place.
+ * @returns 
+ */
+export function getDelta(a: number, b: number, decimalPlace: number=2) {
+	let delta = a - b
+
+	// round to x decimal place, see https://stackoverflow.com/a/11832950/11683637
+	let decimalConvertor = 10 ** decimalPlace
+	delta = Math.round(delta * decimalConvertor) / decimalConvertor
+	return delta
+}
