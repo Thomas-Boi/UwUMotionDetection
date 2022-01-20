@@ -28,12 +28,10 @@ const LANDMARK_INDEX = {
 	PINKY_TIP: 20
 }
 
+/**
+ * Amount of Landmarks in a hand
+ */
 const LANDMARK_AMOUNT = 21
-
-enum FINGER_STATE {
-	OPEN,
-	CLOSED
-}
 
 /**
  * The gestures that the app will recognize.
