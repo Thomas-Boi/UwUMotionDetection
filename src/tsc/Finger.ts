@@ -9,8 +9,8 @@ import { fitOnLine } from "./util"
  */
 const NEAR_RIGHT_AXIS_BOUND = Math.PI / 3
 const NEAR_LEFT_AXIS_BOUND = Math.PI * 2 /3
-const NEAR_UP_LEFT_AXIS_BOUND = Math.PI / 6
-const NEAR_UP_RIGHT_AXIS_BOUND = Math.PI * 5 / 6
+const NEAR_UP_RIGHT_AXIS_BOUND = Math.PI / 6
+const NEAR_UP_LEFT_AXIS_BOUND = Math.PI * 5 / 6
 
 /*
 	* The amount of variation we are giving 
@@ -20,7 +20,7 @@ const NEAR_UP_RIGHT_AXIS_BOUND = Math.PI * 5 / 6
 	* it to be on the line (like a margin of error).
 	* Smaller => more accurate.
 	**/
-const VARIATION = 0.008
+const STRAIGHTNESS_VARIATION = 0.01
 
 /**
  * The indices for finger joints within their LandmarkList.
@@ -29,7 +29,9 @@ const FINGER_INDICES = {
 	MCP: 0,
 	PIP: 1,
 	DIP: 2,
-	TIP: 3
+	TIP: 3,
+	THUMP_CMC: 0,
+	THUMB_MCP: 1
 }
 
 
@@ -72,22 +74,22 @@ export class Finger {
 	 * MUST be in the order of MCP, PIP, DIP and TIP.
 	 */
 	analyzeFinger() {
-		let tcp = new Vector3(this.joints[FINGER_INDICES.TIP].x, this.joints[FINGER_INDICES.TIP].y, this.joints[FINGER_INDICES.TIP].z) 
+		let tip = new Vector3(this.joints[FINGER_INDICES.TIP].x, this.joints[FINGER_INDICES.TIP].y, this.joints[FINGER_INDICES.TIP].z) 
 		let mcp = new Vector3(this.joints[FINGER_INDICES.MCP].x, this.joints[FINGER_INDICES.MCP].y, this.joints[FINGER_INDICES.MCP].z) 
 
 		// get the vector between the two
-		let line = tcp.subtract(mcp)
+		let line = tip.subtract(mcp)
 
+		this.findStraightness(line, tip)
 		this.findFingerDirection(line)
-		this.findStraightness(line, tcp)
 	}
 
 	/**
 	 * Find whether the finger is straight.
 	 * @param line the vector we are checking whether the line is on it.
-	 * @param tcp the TCP point as a Vector3.
+	 * @param tip the TCP point as a Vector3.
 	 */
-	findStraightness(line: Vector3, tcp: Vector3) {
+	findStraightness(line: Vector3, tip: Vector3) {
 		// finding whether finger is straight strategy:
 		// find the vector between the MCP and TIP.
 		// determine whether PIP and DIP fit on this line
@@ -100,9 +102,9 @@ export class Finger {
 		// it to be "on the line".
 
 		let pip = new Vector3(this.joints[FINGER_INDICES.PIP].x, this.joints[FINGER_INDICES.PIP].y, this.joints[FINGER_INDICES.PIP].z) 
-		let pipOnLine = fitOnLine(pip, tcp, line, VARIATION)
+		let pipOnLine = fitOnLine(pip, tip, line, STRAIGHTNESS_VARIATION)
 		let dip = new Vector3(this.joints[FINGER_INDICES.DIP].x, this.joints[FINGER_INDICES.DIP].y, this.joints[FINGER_INDICES.DIP].z) 
-		let dipOnLine = fitOnLine(dip, tcp, line, VARIATION)
+		let dipOnLine = fitOnLine(dip, tip, line, STRAIGHTNESS_VARIATION)
 		this.isStraight = pipOnLine && dipOnLine
 	}
 
@@ -119,9 +121,8 @@ export class Finger {
 		// to do this, first check x and y axis without z
 		// then finally, check z.
 
-		// we change the normal argument to right hand system just for this check
 		let angleRad = Vector3.GetAngleBetweenVectors(
-			new Vector3(line.x ,line.y, 0), Vector3.Right(), Vector3.Forward(true))
+			new Vector3(line.x ,line.y, 0), Vector3.Right(), Vector3.Forward())
 
 		let absAngleRad = Math.abs(angleRad)
 
@@ -136,7 +137,7 @@ export class Finger {
 		}
 
 		// check how close the vector is to the y-axis for both up and downs
-		if (NEAR_UP_LEFT_AXIS_BOUND < angleRad && angleRad < NEAR_UP_RIGHT_AXIS_BOUND) {
+		if (NEAR_UP_RIGHT_AXIS_BOUND < angleRad && angleRad < NEAR_UP_LEFT_AXIS_BOUND) {
 			this.direction.addInPlace(Vector3.Up())
 		}
 		else if (-NEAR_UP_LEFT_AXIS_BOUND < angleRad && angleRad < -NEAR_UP_RIGHT_AXIS_BOUND) {
@@ -156,5 +157,24 @@ export class Finger {
 			this.direction.addInPlace(DIRECTION.BACKWARD())	
 		}
 
+	}
+}
+
+export class Thumb extends Finger {
+	/**
+	 * Analyze the straightness of the finger and the direction it's pointing at.
+	 * The function does take in minor variation when evaluating straightness.
+	 * @param joints the 4 joints that make up the finger.
+	 * MUST be in the order of MCP, PIP, DIP and TIP.
+	 */
+	analyzeFinger() {
+		let tip = new Vector3(this.joints[FINGER_INDICES.TIP].x, this.joints[FINGER_INDICES.TIP].y, this.joints[FINGER_INDICES.TIP].z) 
+		let mcp = new Vector3(this.joints[FINGER_INDICES.THUMB_MCP].x, this.joints[FINGER_INDICES.THUMB_MCP].y, this.joints[FINGER_INDICES.THUMB_MCP].z) 
+
+		// get the vector between the two
+		let line = tip.subtract(mcp)
+
+		this.findStraightness(line, tip)
+		this.findFingerDirection(line)
 	}
 }

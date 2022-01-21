@@ -1,6 +1,7 @@
 import { Vector3 } from "babylonjs"
+import { DIRECTION } from "./handsUtil"
 
-interface FingerState {
+export interface FingerState {
 	/**
 	 * Whether the finger is straight/fully extended.
 	 * Null is for when it doesn't matter.
@@ -16,7 +17,57 @@ interface FingerState {
 	direction: Array<Vector3> | null
 }
 
-interface HandState {
+/**
+ * Some preset common finger. 
+ */
+
+/**
+ * The state of a closed non-thumb finger.
+ */
+const CLOSED_FINGER: FingerState = {
+	isStraight: false,
+	direction: null
+}
+
+/**
+ * The state of an opened finger pointing up.
+ */
+const UP_FINGER: FingerState = {
+	isStraight: true,
+	direction: [
+		Vector3.Up()
+	]
+}
+
+/**
+ * The state of a closed thumb.
+ */
+const CLOSED_THUMB: FingerState = {
+	isStraight: false,
+	direction: null
+}
+
+/**
+ * The state of an opened thumb pointing outwards from palm.
+ * Account for both left and right hand.
+ */
+const OPEN_THUMB: FingerState = {
+	isStraight: true,
+	direction: [
+		Vector3.Left(),
+		Vector3.Left().add(Vector3.Up()),
+		Vector3.Left().add(Vector3.Up()).add(DIRECTION.FORWARD()),
+		Vector3.Right(),
+		Vector3.Right().add(Vector3.Up()),
+		Vector3.Right().add(Vector3.Up()).add(DIRECTION.FORWARD()),
+		Vector3.Up(),
+		Vector3.Up().add(DIRECTION.FORWARD()),
+		Vector3.Down(),
+		Vector3.Down().add(DIRECTION.FORWARD())
+	]
+}
+
+export class Gesture {
 	/**
 	 * The thumb joints.
 	 */
@@ -41,59 +92,15 @@ interface HandState {
 	 * The pinky finger joints.
 	 */
 	pinky: FingerState
-}
-
-/**
- * Some preset common finger. 
- */
-
-/**
- * The state of a closed non-thumb finger.
- */
-const CLOSED_FINGER: FingerState = {
-	isStraight: false,
-	direction: null
-}
-
-/**
- * The state of an opened finger pointing up.
- */
-const UP_FINGER: FingerState = {
-	isStraight: true,
-	direction: [Vector3.Up()]
-}
-
-/**
- * The state of a closed thumb.
- */
-const CLOSED_THUMB: FingerState = {
-	isStraight: false,
-	direction: null
-}
-
-/**
- * The state of an opened finger pointing up.
- */
-const OPEN_THUMB: FingerState = {
-	isStraight: true,
-	direction: [Vector3.Left(), Vector3.Up().add(Vector3.Left())]
-}
-
-export class Gesture {
-	/**
-	 * The condition needed to make this gesture.
-	 */
-	condition: HandState
 
 	constructor(thumb: FingerState=CLOSED_FINGER, index: FingerState=CLOSED_FINGER,
 		middle: FingerState=CLOSED_FINGER, ring: FingerState=CLOSED_FINGER, pinky: FingerState=CLOSED_FINGER) {
-		this.condition = {
-			thumb,
-			index,
-			middle,
-			ring,
-			pinky
-		}
+
+		this.thumb = thumb
+		this.index = index
+		this.middle = middle
+		this.ring = ring
+		this.pinky = pinky
 	}
 }
 

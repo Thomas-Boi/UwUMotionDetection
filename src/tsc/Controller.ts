@@ -1,4 +1,5 @@
-import {GESTURES, LANDMARK_AMOUNT } from "./handsUtil"
+import { LANDMARK_AMOUNT } from "./handsUtil"
+import * as Gesture from "./Gesture"
 import { Results } from "@mediapipe/hands"
 import { HandTracker } from "./HandTracker"
 import * as BABYLON from "babylonjs"
@@ -6,6 +7,7 @@ import { Hand } from "./Hand"
 import { getDelta } from "./util"
 
 const TRANSLATE_MULTIPLIER = 3
+const testDiv = document.getElementById("test")
 
 /**
  * Use the HandTracker's data and manipulate the scene using it.
@@ -98,8 +100,24 @@ export class Controller {
 		// only care about 1 hand
 		this.hand.updateHand(results.multiHandLandmarks[0])
 		this.prevHand.updateHand(prevResults.multiHandLandmarks[0])
-		if (this.hand.determineGesture() === GESTURES.FIST) {
-			this.translate(this.hand, this.prevHand)
+		if (this.hand.matches(Gesture.CLOSED_FIST)) {
+			// this.translate(this.hand, this.prevHand)
+			testDiv.textContent = "0"
+		}
+		else if (this.hand.matches(Gesture.ONE)) {
+			testDiv.textContent = "1"
+		}
+		else if (this.hand.matches(Gesture.TWO)) {
+			testDiv.textContent = "2"
+		}
+		else if (this.hand.matches(Gesture.THREE)) {
+			testDiv.textContent = "3"
+		}
+		else if (this.hand.matches(Gesture.FOUR)) {
+			testDiv.textContent = "4"
+		}
+		else if (this.hand.matches(Gesture.FIVE)) {
+			testDiv.textContent = "5"
 		}
 	}
 

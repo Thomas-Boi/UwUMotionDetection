@@ -33,26 +33,7 @@ const LANDMARK_INDEX = {
  */
 const LANDMARK_AMOUNT = 21
 
-/**
- * The gestures that the app will recognize.
- * The numbers refer to how the average Canadians
- * would count on their fingers (1 is index finger, 2 is index + middle finger).
- */
-enum GESTURES {
-	FIST,
-	ONE,
-	TWO,
-	THREE,
-	FOUR,
-	FIVE,
-	NONE // none of the above
-}
-
 const DIRECTION = {
-	UP: Vector3.Up,
-	DOWN: Vector3.Down,
-	LEFT: Vector3.Left,
-	RIGHT: Vector3.Right,
 	// positive z value of the finger in MediaPipe goes away from the screen
 	// their doc said the smaller the value, the closer the z-value is to the screen.
 	FORWARD: Vector3.Backward, 
@@ -61,7 +42,6 @@ const DIRECTION = {
 
 export {
 	LANDMARK_INDEX,
-	GESTURES,
 	DIRECTION,
 	LANDMARK_AMOUNT
 }

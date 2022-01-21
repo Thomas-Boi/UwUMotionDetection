@@ -1,6 +1,8 @@
 import { LandmarkList, Landmark } from "@mediapipe/hands";
-import { LANDMARK_INDEX, GESTURES } from "./handsUtil";
-import { Finger } from "./Finger";
+import { LANDMARK_INDEX } from "./handsUtil";
+import { Gesture } from "./Gesture";
+import { Finger, Thumb } from "./Finger";
+import { FingerState } from "./Gesture"
 
 
 /**
@@ -15,7 +17,7 @@ export class Hand {
 	/**
 	 * The thumb joints.
 	 */
-	thumb: Finger
+	thumb: Thumb
 
 	/**
 	 * The index finger joints.
@@ -39,7 +41,7 @@ export class Hand {
 
 	constructor(hand: LandmarkList) {
 		this.wrist = hand[LANDMARK_INDEX.WRIST]
-		this.thumb = new Finger(hand.slice(LANDMARK_INDEX.THUMB_CMC, LANDMARK_INDEX.THUMB_TIP + 1))
+		this.thumb = new Thumb(hand.slice(LANDMARK_INDEX.THUMB_CMC, LANDMARK_INDEX.THUMB_TIP + 1))
 		this.index = new Finger(hand.slice(LANDMARK_INDEX.INDEX_FINGER_MCP, LANDMARK_INDEX.INDEX_FINGER_TIP + 1))
 		this.middle = new Finger(hand.slice(LANDMARK_INDEX.MIDDLE_FINGER_MCP, LANDMARK_INDEX.MIDDLE_FINGER_TIP + 1))
 		this.ring = new Finger(hand.slice(LANDMARK_INDEX.RING_FINGER_MCP, LANDMARK_INDEX.RING_FINGER_TIP + 1))
@@ -71,40 +73,27 @@ export class Hand {
 
 	/**
 	 * Determine the gesture that the hand is making.
-	 * @returns the Gesture that was detected.
+	 * @returns whether the hand is making the gesture passed in. 
 	 */
-	determineGesture(): GESTURES {
-		// determine the state of each finger: whether
-		// they are open or closed.
-		const fingerStats = [
-			this.index.isStraight,
-			this.middle.isStraight,
-			this.ring.isStraight,
-			this.pinky.isStraight,
-		]
+	matches(gesture: Gesture): boolean {
+		let fingerNames = Object.keys(gesture)
+		for (let name of fingerNames) {
+			let finger: Finger = this[name]
+			let fingerState: FingerState = gesture[name]
 
-		let count = 0
-		for (let fingerIsOpen of fingerStats) {
-			if (fingerIsOpen) count++
-			else break
-		}
+			if (fingerState.isStraight !== null) {
+				if (fingerState.isStraight !== finger.isStraight) 
+					return false
+			}
 
-		switch(count) {
-			case 0:
-				return GESTURES.FIST
-			case 1:
-				return GESTURES.ONE
-			case 2:
-				return GESTURES.TWO
-			case 3:
-				return GESTURES.THREE
-			case 4:
-				return GESTURES.FOUR
-			case 5:
-				return GESTURES.FIVE
-			default:
-				return GESTURES.NONE
+			if (fingerState.direction !== null) {
+				if (fingerState.direction.find(
+					direction => finger.direction.equals(direction)) === undefined) {
+						return false
+					}
+			}
 		}
+		return true
 	}
 
 }
