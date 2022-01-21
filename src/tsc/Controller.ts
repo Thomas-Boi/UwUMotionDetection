@@ -4,9 +4,11 @@ import { Results } from "@mediapipe/hands"
 import { HandTracker } from "./HandTracker"
 import * as BABYLON from "babylonjs"
 import { Hand } from "./Hand"
+import { FINGER_INDICES } from "./Finger"
 import { getDelta } from "./util"
 
 const TRANSLATE_MULTIPLIER = 3
+const ROTATE_MULTIPLIER = 3
 const testDiv = document.getElementById("test")
 
 /**
@@ -100,24 +102,13 @@ export class Controller {
 		// only care about 1 hand
 		this.hand.updateHand(results.multiHandLandmarks[0])
 		this.prevHand.updateHand(prevResults.multiHandLandmarks[0])
+
 		if (this.hand.matches(Gesture.CLOSED_FIST)) {
-			// this.translate(this.hand, this.prevHand)
-			testDiv.textContent = "0"
+			console.log("translate")
+			this.translate(this.hand, this.prevHand)
 		}
 		else if (this.hand.matches(Gesture.ONE)) {
-			testDiv.textContent = "1"
-		}
-		else if (this.hand.matches(Gesture.TWO)) {
-			testDiv.textContent = "2"
-		}
-		else if (this.hand.matches(Gesture.THREE)) {
-			testDiv.textContent = "3"
-		}
-		else if (this.hand.matches(Gesture.FOUR)) {
-			testDiv.textContent = "4"
-		}
-		else if (this.hand.matches(Gesture.FIVE)) {
-			testDiv.textContent = "5"
+			this.rotateAroundY(this.hand, this.prevHand)
 		}
 	}
 
@@ -128,7 +119,7 @@ export class Controller {
 	 */
 	translate(hand: Hand, prevHand: Hand) {
 		// has to flip horizontal footage since camera flips the view
-		let horizontalDelta = -getDelta(hand.wrist.x, prevHand.wrist.x, 5)
+		let horizontalDelta = -getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
 
 		// has to flip vertical footage since image y-axis run top to bottom (increase downward like js)
 		let verticalDelta = -getDelta(hand.wrist.y, prevHand.wrist.y, 5)
@@ -137,6 +128,33 @@ export class Controller {
 		this.mesh.translate(BABYLON.Axis.Y, TRANSLATE_MULTIPLIER * verticalDelta)
 	}
 
+	/**
+	 * Rotate the object around the y axis on screen based on the hand and prevHand.
+	 * @param hand the hand of this current frame.
+	 * @param prevHand the hand of the previous frame.
+	 */
+	rotateAroundY(hand: Hand, prevHand: Hand) {
+		// has to flip horizontal footage since camera flips the view
+		let horizontalDelta = getDelta(hand.index.joints[FINGER_INDICES.TIP].x, prevHand.index.joints[FINGER_INDICES.TIP].x, 5)
+
+		this.mesh.rotate(BABYLON.Axis.Y, ROTATE_MULTIPLIER * horizontalDelta)
+	}
+
+	/**
+	 * Rotate the object around x-axis on screen based on the hand and prevHand.
+	 * @param hand the hand of this current frame.
+	 * @param prevHand the hand of the previous frame.
+	 */
+	rotateAroundX(hand: Hand, prevHand: Hand) {
+		// has to flip horizontal footage since camera flips the view
+		let horizontalDelta = -getDelta(hand.wrist.x, prevHand.wrist.x, 5)
+
+		// has to flip vertical footage since image y-axis run top to bottom (increase downward like js)
+		let verticalDelta = -getDelta(hand.wrist.y, prevHand.wrist.y, 5)
+
+		this.mesh.translate(BABYLON.Axis.X, TRANSLATE_MULTIPLIER * horizontalDelta)
+		this.mesh.translate(BABYLON.Axis.Y, TRANSLATE_MULTIPLIER * verticalDelta)
+	}
 	/**
 	 * Subscribe to the HandTracker object for the first time.
 	 * This function will be call the first time the HandTracker

@@ -25,7 +25,7 @@ const STRAIGHTNESS_VARIATION = 0.01
 /**
  * The indices for finger joints within their LandmarkList.
  */
-const FINGER_INDICES = {
+export const FINGER_INDICES = {
 	MCP: 0,
 	PIP: 1,
 	DIP: 2,
