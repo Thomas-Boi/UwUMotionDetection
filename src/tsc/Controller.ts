@@ -55,6 +55,7 @@ export class Controller {
 		const engine = new BABYLON.Engine(canvas, true)
 
 		this.scene = new BABYLON.Scene(engine)
+		this.scene.clearColor = new BABYLON.Color4(0, 0, 0)
 		this.camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 3, new BABYLON.Vector3(0, 0, 0), this.scene)
 		this.camera.attachControl(canvas, true)
 		
@@ -104,7 +105,6 @@ export class Controller {
 		this.prevHand.updateHand(prevResults.multiHandLandmarks[0])
 
 		if (this.hand.matches(Gesture.CLOSED_FIST)) {
-			console.log("translate")
 			this.translate(this.hand, this.prevHand)
 		}
 		else if (this.hand.matches(Gesture.ONE)) {

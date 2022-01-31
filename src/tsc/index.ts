@@ -6,16 +6,15 @@ import { Controller } from "./Controller"
 
 main()
 function main() {
+  // set up components
   const tracker = new HandTracker()
   const inputSource = new InputSource()
-
-  // for testing, do not hide the video
-  inputSource.initVideoElement(false)
-
-  inputSource.initCamera(tracker)
   const controller = new Controller()
+
+  // connect the pipeline
+  // input -> controller -> tracker
+  inputSource.initCamera(tracker)
   controller.subscribe(tracker)
 
   inputSource.start()
-
 }
