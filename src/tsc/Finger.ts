@@ -70,12 +70,11 @@ export class Finger {
 	/**
 	 * Analyze the straightness of the finger and the direction it's pointing at.
 	 * The function does take in minor variation when evaluating straightness.
-	 * @param joints the 4 joints that make up the finger.
-	 * MUST be in the order of MCP, PIP, DIP and TIP.
+	 * @param MCPIndex the index we are using to find the base/mcp of a finger.
 	 */
-	analyzeFinger() {
+	analyzeFinger(MCPIndex: number=FINGER_INDICES.MCP) {
 		let tip = new Vector3(this.joints[FINGER_INDICES.TIP].x, this.joints[FINGER_INDICES.TIP].y, this.joints[FINGER_INDICES.TIP].z) 
-		let mcp = new Vector3(this.joints[FINGER_INDICES.MCP].x, this.joints[FINGER_INDICES.MCP].y, this.joints[FINGER_INDICES.MCP].z) 
+		let mcp = new Vector3(this.joints[MCPIndex].x, this.joints[MCPIndex].y, this.joints[MCPIndex].z) 
 
 		// get the vector between the two
 		let line = tip.subtract(mcp)
@@ -168,13 +167,6 @@ export class Thumb extends Finger {
 	 * MUST be in the order of MCP, PIP, DIP and TIP.
 	 */
 	analyzeFinger() {
-		let tip = new Vector3(this.joints[FINGER_INDICES.TIP].x, this.joints[FINGER_INDICES.TIP].y, this.joints[FINGER_INDICES.TIP].z) 
-		let mcp = new Vector3(this.joints[FINGER_INDICES.THUMB_MCP].x, this.joints[FINGER_INDICES.THUMB_MCP].y, this.joints[FINGER_INDICES.THUMB_MCP].z) 
-
-		// get the vector between the two
-		let line = tip.subtract(mcp)
-
-		this.findStraightness(line, tip)
-		this.findFingerDirection(line)
+		super.analyzeFinger(FINGER_INDICES.THUMB_MCP)
 	}
 }

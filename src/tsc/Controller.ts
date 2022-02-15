@@ -8,8 +8,9 @@ import { FINGER_INDICES } from "./Finger"
 import { getDelta } from "./util"
 
 const TRANSLATE_MULTIPLIER = 3
-const ROTATE_MULTIPLIER = 3
+const ROTATE_MULTIPLIER = 4
 const testDiv = document.getElementById("test")
+const statusSpan = document.getElementById("status")
 
 /**
  * Use the HandTracker's data and manipulate the scene using it.
@@ -99,7 +100,12 @@ export class Controller {
 	 * either one or both results are null or empty.
 	 */
 	onResultsCallback(results: Results | null, prevResults: Results | null, bothValid: boolean) {
-		if (!bothValid) return
+		if (!bothValid) {
+			statusSpan.style.backgroundColor = "red"
+			return
+		}
+
+		statusSpan.style.backgroundColor = "green"
 		// only care about 1 hand
 		this.hand.updateHand(results.multiHandLandmarks[0])
 		this.prevHand.updateHand(prevResults.multiHandLandmarks[0])
@@ -109,6 +115,10 @@ export class Controller {
 		}
 		else if (this.hand.matches(Gesture.ONE)) {
 			this.rotateAroundY(this.hand, this.prevHand)
+		}
+		else if (this.hand.matches(Gesture.ROTATE_X)) {
+			console.log("rot x")
+			this.rotateAroundX(this.hand, this.prevHand)
 		}
 	}
 
@@ -124,8 +134,8 @@ export class Controller {
 		// has to flip vertical footage since image y-axis run top to bottom (increase downward like js)
 		let verticalDelta = -getDelta(hand.wrist.y, prevHand.wrist.y, 5)
 
-		this.mesh.translate(BABYLON.Axis.X, TRANSLATE_MULTIPLIER * horizontalDelta)
-		this.mesh.translate(BABYLON.Axis.Y, TRANSLATE_MULTIPLIER * verticalDelta)
+		this.mesh.translate(BABYLON.Axis.X, TRANSLATE_MULTIPLIER * horizontalDelta, BABYLON.Space.WORLD)
+		this.mesh.translate(BABYLON.Axis.Y, TRANSLATE_MULTIPLIER * verticalDelta, BABYLON.Space.WORLD)
 	}
 
 	/**
@@ -147,13 +157,9 @@ export class Controller {
 	 */
 	rotateAroundX(hand: Hand, prevHand: Hand) {
 		// has to flip horizontal footage since camera flips the view
-		let horizontalDelta = -getDelta(hand.wrist.x, prevHand.wrist.x, 5)
+		let verticalDelta = getDelta(hand.index.joints[FINGER_INDICES.TIP].y, prevHand.index.joints[FINGER_INDICES.TIP].y, 5)
 
-		// has to flip vertical footage since image y-axis run top to bottom (increase downward like js)
-		let verticalDelta = -getDelta(hand.wrist.y, prevHand.wrist.y, 5)
-
-		this.mesh.translate(BABYLON.Axis.X, TRANSLATE_MULTIPLIER * horizontalDelta)
-		this.mesh.translate(BABYLON.Axis.Y, TRANSLATE_MULTIPLIER * verticalDelta)
+		this.mesh.rotate(BABYLON.Axis.X, ROTATE_MULTIPLIER * verticalDelta)
 	}
 	/**
 	 * Subscribe to the HandTracker object for the first time.

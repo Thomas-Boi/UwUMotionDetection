@@ -1,3 +1,9 @@
+body {
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+}
+
 #message {
   font-size: 30px;
 }
@@ -8,8 +14,21 @@ video {
 }
 
 canvas {
-  width: 100vw;
-  height: 100vh;
+  width: 99vw;
+  height: 99vh;
+  top: 0;
+  left: 0;
+  margin: none;
+}
+
+#status {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  width: 100px;
+  height: 50px;
+  opacity: 1;
 }
 
 @keyframes spin {

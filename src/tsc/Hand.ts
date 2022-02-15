@@ -1,6 +1,6 @@
 import { LandmarkList, Landmark } from "@mediapipe/hands";
 import { LANDMARK_INDEX } from "./handsUtil";
-import { Gesture } from "./Gesture";
+import { Gesture, InvalidDirections, ValidDirections } from "./Gesture";
 import { Finger, Thumb } from "./Finger";
 import { FingerState } from "./Gesture"
 
@@ -76,21 +76,26 @@ export class Hand {
 	 * @returns whether the hand is making the gesture passed in. 
 	 */
 	matches(gesture: Gesture): boolean {
-		let fingerNames = Object.keys(gesture)
-		for (let name of fingerNames) {
-			let finger: Finger = this[name]
-			let fingerState: FingerState = gesture[name]
+		for (let fingerName of Object.keys(gesture)) {
+			let finger: Finger = this[fingerName]
+			let fingerState: FingerState = gesture[fingerName]
 
 			if (fingerState.isStraight !== null) {
 				if (fingerState.isStraight !== finger.isStraight) 
 					return false
 			}
 
-			if (fingerState.direction !== null) {
-				if (fingerState.direction.find(
-					direction => finger.direction.equals(direction)) === undefined) {
-						return false
-					}
+			// don't need to check anything since it's null aka doesn't matter
+			if (fingerState.direction === null) continue
+
+			let searchResult = fingerState.direction.find(
+					direction => finger.direction.equals(direction)) 
+
+			if (fingerState.direction instanceof ValidDirections && searchResult === undefined) {
+				return false // doesn't match any => finger failed => whole gesture fails
+			}
+			else if (fingerState.direction instanceof InvalidDirections && searchResult !== undefined) {
+				return false // match invalid vector => finger failed
 			}
 		}
 		return true
