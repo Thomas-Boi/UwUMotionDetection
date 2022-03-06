@@ -13,7 +13,7 @@ const STEPS_PER_SEC = 15
 /**
  * Tracks how long in second each step should take.
  */
-const UPDATE_STEP_IN_SEC = 1000 / STEPS_PER_SEC
+const UPDATE_STEP_IN_A_SEC = 1000 / STEPS_PER_SEC
 
 /**
  * Handle work related to the camera.
@@ -39,18 +39,35 @@ export class InputSource {
 	 */
 	processedFrame: boolean
 
+	/**
+	 * The camera input we are getting.
+	 * "User" means front facing (relavtive to screen) aka selfie mode.
+	 * "Environment" means back facing aka normal camera mode.
+	 */
+	facingMode: "user" | "environment"
 
 	constructor() {
 		this.videoElement = null
 		this.camera = null
 		this.isRunning = false
 		this.processedFrame = false
+		
+		// detect whether we are on a mobile phone
+		// if we are on a phone, switch to env facing mode
+		// if we are on a desktop => front facing 
+		this.facingMode = /Mobi/.test(navigator.userAgent) ? "environment" : "user"
 	}
 
 	/**
 	 * Init the camera.
-	 * This is taken from the camera util script
-	 * and relies on having a video element
+	 * @note the left and right side of the input image
+	 * is depended on the camera type. For a camera,
+	 * moving your hand to the left will yield a video showing
+	 * your hand moving to the right (in your POV). This is because 
+	 * your hand is moving at (-1, 0). However, since the camera is opposite of
+	 * you, it sees that your hand is moving at (1, 0). Thus, it will draw
+	 * your hand moving at (1, 0) on the canvas => for us, it will
+	 * be moving to the right. 
 	 * @param tracker the Hands tracker.
 	 */
 	initCamera(tracker: HandTracker) {
@@ -62,16 +79,17 @@ export class InputSource {
 				// do this to ensure that we only process the frame
 				// according to the interval set below
 				if (!this.processedFrame) {
-					// this.fps++
 					await tracker.hands.send({image: this.videoElement})
 					this.processedFrame = true
 				}
 			},
-			width: 128,
-			height: 72
+			// only need a small resolution
+			width: 256,
+			height: 144,
+			facingMode: this.facingMode
 		})
 
-		setInterval(this.setProcessedFrame.bind(this, false), UPDATE_STEP_IN_SEC)
+		setInterval(this.setProcessedFrame.bind(this, false), UPDATE_STEP_IN_A_SEC)
 	}
 
 	/**

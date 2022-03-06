@@ -9,10 +9,10 @@ function main() {
   // set up components
   const tracker = new HandTracker()
   const inputSource = new InputSource()
-  const controller = new Controller()
+  const controller = new Controller(inputSource.facingMode)
 
   // connect the pipeline
-  // input -> controller -> tracker
+  // input -> tracker -> controller
   inputSource.initCamera(tracker)
   controller.subscribe(tracker)
 

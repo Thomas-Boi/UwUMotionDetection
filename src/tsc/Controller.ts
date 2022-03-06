@@ -12,6 +12,8 @@ const ROTATE_MULTIPLIER = 4
 const testDiv = document.getElementById("test")
 const statusSpan = document.getElementById("status")
 
+let frame = 0
+
 /**
  * Use the HandTracker's data and manipulate the scene using it.
  */
@@ -41,14 +43,24 @@ export class Controller {
 	 */
 	prevHand: Hand
 
+	/**
+	 * Whether the camera is in selfie mode.
+	 * Useful to deal with different camera inputs.
+	 */
+	isSelfieMode: boolean
 
-	constructor() {
+	constructor(facingMode: "user"|"environment") {
 		this.scene = null 
 		this.mesh = null
 		// init with random values
 		this.hand = new Hand(new Array(LANDMARK_AMOUNT).fill(0))
+		
+		// set to null because we can check whether we need to
+		// make a new hand or just use this.hand after we are done.
 		this.prevHand = new Hand(new Array(LANDMARK_AMOUNT).fill(0))
 		this.init3DScene()
+
+		this.isSelfieMode = facingMode === "user" ? true : false
 	}
 
 	init3DScene() {
@@ -85,7 +97,6 @@ export class Controller {
 	 * @param bothValid 
 	 */
 	firstFrameCallback(tracker: HandTracker, key: string, results: Results | null, prevResults: Results | null, bothValid: boolean) {
-		// only care about 1 hand
 		tracker.removeListener(key)
 		tracker.addListener(this.onResultsCallback.bind(this))
 		document.getElementById("loading").style.display = "none"
@@ -106,8 +117,11 @@ export class Controller {
 		}
 
 		statusSpan.style.backgroundColor = "green"
-		// only care about 1 hand
 		this.hand.updateHand(results.multiHandLandmarks[0])
+		// no prevHand => constructs from what is passed in.
+		// if (this.prevHand === null) {
+		// 	this.prevHand = new Hand(prevResults.multiHandLandmarks[0])
+		// }
 		this.prevHand.updateHand(prevResults.multiHandLandmarks[0])
 
 		if (this.hand.matches(Gesture.CLOSED_FIST)) {
@@ -117,7 +131,6 @@ export class Controller {
 			this.rotateAroundY(this.hand, this.prevHand)
 		}
 		else if (this.hand.matches(Gesture.ROTATE_X)) {
-			console.log("rot x")
 			this.rotateAroundX(this.hand, this.prevHand)
 		}
 	}
@@ -128,8 +141,9 @@ export class Controller {
 	 * @param prevHand the hand of the previous frame.
 	 */
 	translate(hand: Hand, prevHand: Hand) {
+		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
 		// has to flip horizontal footage since camera flips the view
-		let horizontalDelta = -getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
+		if (this.isSelfieMode) horizontalDelta *= -1
 
 		// has to flip vertical footage since image y-axis run top to bottom (increase downward like js)
 		let verticalDelta = -getDelta(hand.wrist.y, prevHand.wrist.y, 5)
@@ -144,8 +158,10 @@ export class Controller {
 	 * @param prevHand the hand of the previous frame.
 	 */
 	rotateAroundY(hand: Hand, prevHand: Hand) {
-		// has to flip horizontal footage since camera flips the view
+		// don't need to flip the horizontal for this. The rotation matches
+		// with the flipped image
 		let horizontalDelta = getDelta(hand.index.joints[FINGER_INDICES.TIP].x, prevHand.index.joints[FINGER_INDICES.TIP].x, 5)
+		if (!this.isSelfieMode) horizontalDelta *= -1
 
 		this.mesh.rotate(BABYLON.Axis.Y, ROTATE_MULTIPLIER * horizontalDelta)
 	}
@@ -156,7 +172,6 @@ export class Controller {
 	 * @param prevHand the hand of the previous frame.
 	 */
 	rotateAroundX(hand: Hand, prevHand: Hand) {
-		// has to flip horizontal footage since camera flips the view
 		let verticalDelta = getDelta(hand.index.joints[FINGER_INDICES.TIP].y, prevHand.index.joints[FINGER_INDICES.TIP].y, 5)
 
 		this.mesh.rotate(BABYLON.Axis.X, ROTATE_MULTIPLIER * verticalDelta)

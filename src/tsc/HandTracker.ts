@@ -47,8 +47,8 @@ export class HandTracker {
 	 */
 	onResultsCallback(results: Results) {
 		let bothValid = results.multiHandWorldLandmarks 
-			&& results.multiHandWorldLandmarks.length != 0
 			&& this.prevResults 
+			&& results.multiHandWorldLandmarks.length != 0
 			&& this.prevResults.multiHandWorldLandmarks.length != 0
 
 		this.listeners.forEach(listener => listener(results, this.prevResults, bothValid))

@@ -49,7 +49,8 @@ export class Hand {
 	}
 
 	/**
-	 * Update the hand's coordinates.
+	 * Update the hand's coordinates. Recall that camera flips the
+	 * image
 	 * @param hand a list of landmarks created by MediaPipe.
 	 */
 	updateHand(hand: LandmarkList) {
@@ -60,9 +61,6 @@ export class Hand {
 		this.ring.setJoints(hand.slice(LANDMARK_INDEX.RING_FINGER_MCP, LANDMARK_INDEX.RING_FINGER_TIP + 1))
 		this.pinky.setJoints(hand.slice(LANDMARK_INDEX.PINKY_MCP, LANDMARK_INDEX.PINKY_TIP + 1))
 
-		/**
-		 * Analyze the fingers.
-		 */
 		this.thumb.analyzeFinger();
 		this.index.analyzeFinger();
 		this.middle.analyzeFinger();
@@ -91,6 +89,7 @@ export class Hand {
 			let searchResult = fingerState.direction.find(
 					direction => finger.direction.equals(direction)) 
 
+			if (fingerName == "index") console.log("matching index state", searchResult)
 			if (fingerState.direction instanceof ValidDirections && searchResult === undefined) {
 				return false // doesn't match any => finger failed => whole gesture fails
 			}

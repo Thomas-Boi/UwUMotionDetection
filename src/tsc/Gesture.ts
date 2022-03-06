@@ -2,6 +2,10 @@ import { Vector3 } from "babylonjs"
 import { DIRECTION } from "./handsUtil"
 
 /**
+ * NOTE: All gestures are created from the POV of its holder.
+ */
+
+/**
  * A specialized array that holds valid directions
  * for a finger to point at. This means if the finger
  * matches the state in the array, it counts as valid.
