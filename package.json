@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1640029074",
-    "@mediapipe/hands": "^0.4.1635986972",
+    "@mediapipe/hands": "^0.4.1646424915",
     "babylonjs": "^4.2.1",
     "typescript": "^4.5.4"
   },

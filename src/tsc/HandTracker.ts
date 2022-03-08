@@ -13,11 +13,6 @@ export class HandTracker {
 	hands: Hands
 
 	/**
-	 * Track the previous results that we scanned.
-	 */
-	prevResults: Results | null
-
-	/**
 	 * The listeners that are registered to get data from HandTracker
 	 * once it finishes parsing it.
 	 */
@@ -38,7 +33,6 @@ export class HandTracker {
 		hands.onResults(this.onResultsCallback.bind(this))
 
 		this.hands = hands
-		this.prevResults = null
 		this.listeners = new Map()
 	}
 
@@ -46,13 +40,7 @@ export class HandTracker {
 	 * Handle the onResults event of the Hands tracker.
 	 */
 	onResultsCallback(results: Results) {
-		let bothValid = results.multiHandWorldLandmarks 
-			&& this.prevResults 
-			&& results.multiHandWorldLandmarks.length != 0
-			&& this.prevResults.multiHandWorldLandmarks.length != 0
-
-		this.listeners.forEach(listener => listener(results, this.prevResults, bothValid))
-		this.prevResults = results
+		this.listeners.forEach(listener => listener(results))
 	}
 
 	/**

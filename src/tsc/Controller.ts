@@ -7,9 +7,8 @@ import { Hand } from "./Hand"
 import { FINGER_INDICES } from "./Finger"
 import { getDelta } from "./util"
 
-const TRANSLATE_MULTIPLIER = 3
+const TRANSLATE_MULTIPLIER = 4
 const ROTATE_MULTIPLIER = 4
-const testDiv = document.getElementById("test")
 const statusSpan = document.getElementById("status")
 
 let frame = 0
@@ -49,6 +48,17 @@ export class Controller {
 	 */
 	isSelfieMode: boolean
 
+	/**
+	 * Count how many times the hand were tracked 
+	 * consecutively. Used to set the curShape.
+	 */
+	trackCounter: number
+
+	/**
+	 * The current shape of the user's hand.
+	 */
+	curShape: null | Gesture.Gesture
+
 	constructor(facingMode: "user"|"environment") {
 		this.scene = null 
 		this.mesh = null
@@ -57,7 +67,7 @@ export class Controller {
 		
 		// set to null because we can check whether we need to
 		// make a new hand or just use this.hand after we are done.
-		this.prevHand = new Hand(new Array(LANDMARK_AMOUNT).fill(0))
+		this.prevHand = null
 		this.init3DScene()
 
 		this.isSelfieMode = facingMode === "user" ? true : false
@@ -93,10 +103,8 @@ export class Controller {
 	 * @param tracker the HandTracker.
 	 * @param key the listener name we subscribed to tracker.
 	 * @param results 
-	 * @param prevResults 
-	 * @param bothValid 
 	 */
-	firstFrameCallback(tracker: HandTracker, key: string, results: Results | null, prevResults: Results | null, bothValid: boolean) {
+	firstFrameCallback(tracker: HandTracker, key: string, results: Results | null) {
 		tracker.removeListener(key)
 		tracker.addListener(this.onResultsCallback.bind(this))
 		document.getElementById("loading").style.display = "none"
@@ -105,24 +113,15 @@ export class Controller {
 	/**
 	 * Handle the onResults event of the Hands tracker.
 	 * @param results the result of the data parsing.
-	 * @param prevResults the result of the data parsing.
-	 * @param bothValid whether both results are usable. 
-	 * If true, both results contain data. If false, 
-	 * either one or both results are null or empty.
 	 */
-	onResultsCallback(results: Results | null, prevResults: Results | null, bothValid: boolean) {
-		if (!bothValid) {
-			statusSpan.style.backgroundColor = "red"
+	onResultsCallback(results: Results | null) {
+		this.detectShape(results)
+
+		if (!this.prevHand) {
+			// ensure that we always save prevHand
+			this.prevHand = this.hand
 			return
 		}
-
-		statusSpan.style.backgroundColor = "green"
-		this.hand.updateHand(results.multiHandLandmarks[0])
-		// no prevHand => constructs from what is passed in.
-		// if (this.prevHand === null) {
-		// 	this.prevHand = new Hand(prevResults.multiHandLandmarks[0])
-		// }
-		this.prevHand.updateHand(prevResults.multiHandLandmarks[0])
 
 		if (this.hand.matches(Gesture.CLOSED_FIST)) {
 			this.translate(this.hand, this.prevHand)
@@ -133,6 +132,30 @@ export class Controller {
 		else if (this.hand.matches(Gesture.ROTATE_X)) {
 			this.rotateAroundX(this.hand, this.prevHand)
 		}
+
+		this.prevHand = this.hand
+	}
+
+	/**
+	 * Detect the shape of the user's hand.
+	 */
+	detectShape(results: Results | null) {
+		if (!results || results.multiHandLandmarks.length === 0) {
+			statusSpan.style.backgroundColor = "red"
+			// this.trackCounter = 0
+			this.prevHand = null
+			return
+		}
+
+		// don't do anything if there's only 1 track =>
+		// use this to eliminate flashes of hands
+		// if (++this.trackCounter == 1) return
+
+		statusSpan.style.backgroundColor = "green"
+
+		// console.log("tracked")
+		this.hand = new Hand(results.multiHandLandmarks[0])
+
 	}
 
 	/**

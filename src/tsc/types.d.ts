@@ -7,4 +7,4 @@ import { Results } from "@mediapipe/hands";
  * @param bothValid whether both results are usable. If true, both results
  * contain data. If false, either one or both results are null or empty.
  */
-export type HandTrackerListener = (results: Results | null, prevResults: Results | null, bothValid: boolean) => (void)
+export type HandTrackerListener = (results: Results | null) => (void)

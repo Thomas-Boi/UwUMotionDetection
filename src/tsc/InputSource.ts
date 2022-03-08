@@ -8,7 +8,7 @@ import { HandTracker } from "./HandTracker"
  * user's hand hasn't move => also improve performance so we don't
  * update the app when we don't need to.
  */
-const STEPS_PER_SEC = 15
+const STEPS_PER_SEC = 20
 
 /**
  * Tracks how long in second each step should take.
@@ -84,8 +84,8 @@ export class InputSource {
 				}
 			},
 			// only need a small resolution
-			width: 256,
-			height: 144,
+			width: 128,
+			height: 72,
 			facingMode: this.facingMode
 		})
 
