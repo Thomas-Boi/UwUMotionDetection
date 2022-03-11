@@ -146,14 +146,14 @@ export class Finger {
 		// now check the z-axis by checking z-y axis
 		// z-axis can reuse the angle for x-axis
 		let zAbsAngleRad = Math.abs(Vector3.GetAngleBetweenVectors(
-			new Vector3(0, line.y, line.z), DIRECTION.FORWARD(), Vector3.Left()))
+			new Vector3(0, line.y, line.z), DIRECTION.TOWARD_SCREEN(), Vector3.Left()))
 
 		if (zAbsAngleRad < NEAR_RIGHT_AXIS_BOUND) {
-			this.direction.addInPlace(DIRECTION.FORWARD())	
+			this.direction.addInPlace(DIRECTION.TOWARD_SCREEN())	
 		}
 		// if angle is > 120, we know it's nearer to the left hand side
 		else if (zAbsAngleRad > NEAR_LEFT_AXIS_BOUND) {
-			this.direction.addInPlace(DIRECTION.BACKWARD())	
+			this.direction.addInPlace(DIRECTION.AWAY_FROM_SCREEN())	
 		}
 
 	}

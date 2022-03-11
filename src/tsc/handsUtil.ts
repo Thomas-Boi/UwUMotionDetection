@@ -36,8 +36,8 @@ const LANDMARK_AMOUNT = 21
 const DIRECTION = {
 	// positive z value of the finger in MediaPipe goes away from the screen
 	// their doc said the smaller the value, the closer the z-value is to the screen.
-	FORWARD: Vector3.Backward, 
-	BACKWARD: Vector3.Forward
+	TOWARD_SCREEN: Vector3.Backward, 
+	AWAY_FROM_SCREEN: Vector3.Forward
 }
 
 export {

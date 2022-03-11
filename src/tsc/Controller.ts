@@ -11,9 +11,9 @@ const TRANSLATE_MULTIPLIER = 4
 const ROTATE_MULTIPLIER = 4
 
 // when the track counter pass this threshold,
-// we are confident that the user is making a shape 
-// with their hand.
-const SHAPE_COUNTER_THRESHOLD = 4
+// we are confident that the user is intentionally making a shape 
+// with their hand and not due to noises.
+const SHAPE_COUNTER_THRESHOLD = 5
 const statusSpan = document.getElementById("status")
 
 /**
@@ -162,12 +162,12 @@ export class Controller {
 		// we can't do any calculations.
 		let newGesture = null
 		if (!results || results.multiHandLandmarks.length === 0) {
-			statusSpan.style.backgroundColor = "red"
+			statusSpan.style.backgroundColor = "#ff0007"  // bright red
 			this.hand = null
 		}
 		else {
 			// valid data => start analyzing the shape
-			statusSpan.style.backgroundColor = "green"
+			statusSpan.style.backgroundColor = "#02fd49" // neon green
 			this.hand = new Hand(results.multiHandLandmarks[0])
 
 			if (this.hand.matches(Gesture.CLOSED_FIST)) {
@@ -240,7 +240,8 @@ export class Controller {
 	 * @param prevHand the hand of the previous frame.
 	 */
 	rotateAroundX(hand: Hand, prevHand: Hand) {
-		let verticalDelta = getDelta(hand.index.joints[FINGER_INDICES.TIP].y, prevHand.index.joints[FINGER_INDICES.TIP].y, 5)
+		// has to fliip the vertical to get the right rotation
+		let verticalDelta = -getDelta(hand.index.joints[FINGER_INDICES.TIP].y, prevHand.index.joints[FINGER_INDICES.TIP].y, 5)
 
 		this.mesh.rotate(BABYLON.Axis.X, ROTATE_MULTIPLIER * verticalDelta)
 	}

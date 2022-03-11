@@ -75,7 +75,6 @@ export class Hand {
 			let searchResult = fingerState.direction.find(
 					direction => finger.direction.equals(direction)) 
 
-			// if (fingerName == "index") console.log("matching index state", searchResult)
 			if (fingerState.direction instanceof ValidDirections && searchResult === undefined) {
 				return false // doesn't match any => finger failed => whole gesture fails
 			}

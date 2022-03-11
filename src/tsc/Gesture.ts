@@ -2,7 +2,7 @@ import { Vector3 } from "babylonjs"
 import { DIRECTION } from "./handsUtil"
 
 /**
- * NOTE: All gestures are created from the POV of its holder.
+ * NOTE: All gestures are created from the POV of the viewer.
  */
 
 /**
@@ -10,10 +10,7 @@ import { DIRECTION } from "./handsUtil"
  * for a finger to point at. This means if the finger
  * matches the state in the array, it counts as valid.
  */
-export class ValidDirections<Type> extends Array {
-	constructor(...values: any) {
-		super(values)
-	}
+export class ValidDirections extends Array<Vector3> {
 }
 
 /**
@@ -21,10 +18,7 @@ export class ValidDirections<Type> extends Array {
  * for a finger to point at. This means if the finger
  * matches the state in the array, it's invalid.
  */
-export class InvalidDirections<Type> extends Array {
-	constructor(...values: any) {
-		super(values)
-	}
+export class InvalidDirections extends Array<Vector3> {
 }
 
 export interface FingerState {
@@ -42,7 +36,7 @@ export interface FingerState {
 	 * of them. So DIRECTION.UP is allowed, so is DIRECTION.UP + DIRECTION.RIGHT.
 	 * Null is for when it doesn't matter.
 	 */
-	direction: ValidDirections<Vector3> | InvalidDirections<Vector3> | null
+	direction: ValidDirections | InvalidDirections | null
 }
 
 /**
@@ -77,11 +71,11 @@ const UP_FINGER: FingerState = {
 const OUTWARD_THUMB: FingerState = {
 	isStraight: true,
 	direction: new ValidDirections(
-		Vector3.Left(),
-		Vector3.Left().add(Vector3.Up()),
-		Vector3.Left().add(Vector3.Up()).add(DIRECTION.FORWARD()),
-		DIRECTION.FORWARD(),
-		Vector3.Up().add(DIRECTION.FORWARD())
+		Vector3.Right(),
+		Vector3.Right().add(Vector3.Up()),
+		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
+		DIRECTION.TOWARD_SCREEN(),
+		Vector3.Up().add(DIRECTION.TOWARD_SCREEN())
 	)
 }
 
@@ -91,11 +85,11 @@ const OUTWARD_THUMB: FingerState = {
 const CLOSED_THUMB: FingerState = {
 	isStraight: null,
 	direction: new InvalidDirections(
-		Vector3.Left(),
-		Vector3.Left().add(Vector3.Up()),
-		Vector3.Left().add(Vector3.Up()).add(DIRECTION.FORWARD()),
-		DIRECTION.FORWARD(),
-		Vector3.Up().add(DIRECTION.FORWARD())
+		Vector3.Right(),
+		Vector3.Right().add(Vector3.Up()),
+		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
+		DIRECTION.TOWARD_SCREEN(),
+		Vector3.Up().add(DIRECTION.TOWARD_SCREEN())
 	)
 }
 
@@ -134,8 +128,6 @@ export class Gesture {
 	constructor(thumb: FingerState=CLOSED_THUMB, index: FingerState=CLOSED_FINGER,
 		middle: FingerState=CLOSED_FINGER, ring: FingerState=CLOSED_FINGER, pinky: FingerState=CLOSED_FINGER) {
 		
-		// this.name = name
-
 		this.thumb = thumb
 		this.index = index
 		this.middle = middle
@@ -165,9 +157,10 @@ export const FIVE = new Gesture(OUTWARD_THUMB, UP_FINGER, UP_FINGER, UP_FINGER, 
 const ROTATE_X_INDEX_FINGER: FingerState = {
 	isStraight: true,
 	direction: new ValidDirections(
-		Vector3.Left(),
-		Vector3.Left().add(Vector3.Up()),
-		Vector3.Left().add(Vector3.Up()).add(DIRECTION.FORWARD())
+		Vector3.Right(),
+		Vector3.Right().add(Vector3.Up()),
+		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
+		Vector3.Right().add(DIRECTION.TOWARD_SCREEN())
 	)
 }
 export const ROTATE_X = new Gesture(CLOSED_THUMB, ROTATE_X_INDEX_FINGER)
