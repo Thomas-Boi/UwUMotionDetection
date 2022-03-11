@@ -9,9 +9,12 @@ import { getDelta } from "./util"
 
 const TRANSLATE_MULTIPLIER = 4
 const ROTATE_MULTIPLIER = 4
-const statusSpan = document.getElementById("status")
 
-let frame = 0
+// when the track counter pass this threshold,
+// we are confident that the user is making a shape 
+// with their hand.
+const SHAPE_COUNTER_THRESHOLD = 4
+const statusSpan = document.getElementById("status")
 
 /**
  * Use the HandTracker's data and manipulate the scene using it.
@@ -49,15 +52,20 @@ export class Controller {
 	isSelfieMode: boolean
 
 	/**
-	 * Count how many times the hand were tracked 
-	 * consecutively. Used to set the curShape.
+	 * Track when we need to switch to a new state. 
+	 * Used to set the curState.
 	 */
-	trackCounter: number
+	shapeCounter: number
 
 	/**
-	 * The current shape of the user's hand.
+	 * The current state of the user's hand.
 	 */
-	curShape: null | Gesture.Gesture
+	curState: null | Gesture.Gesture
+
+	/**
+	 * The latest shape that we detected from the user.
+	 */
+	latestGesture: null | Gesture.Gesture
 
 	constructor(facingMode: "user"|"environment") {
 		this.scene = null 
@@ -71,6 +79,7 @@ export class Controller {
 		this.init3DScene()
 
 		this.isSelfieMode = facingMode === "user" ? true : false
+		this.shapeCounter = 0
 	}
 
 	init3DScene() {
@@ -115,21 +124,29 @@ export class Controller {
 	 * @param results the result of the data parsing.
 	 */
 	onResultsCallback(results: Results | null) {
+		// check and see the state of the Controller, which is
+		// the current hand gesture of the user.
 		this.detectShape(results)
 
-		if (!this.prevHand) {
-			// ensure that we always save prevHand
-			this.prevHand = this.hand
-			return
-		}
+		if (!(this.curState && this.prevHand && this.hand)) {
+			// do nothing, just skip the checks
 
-		if (this.hand.matches(Gesture.CLOSED_FIST)) {
+			// for curState
+			// this is when we are sure there's nothing to parse
+			// so do nothing.
+
+			// for prevHand
+			// if there's a none flash in between
+			// two valid gestures, the 2nd valid gesture will have
+			// a null prevHand => this checks avoid it
+		}
+		else if (this.curState == Gesture.CLOSED_FIST) {
 			this.translate(this.hand, this.prevHand)
 		}
-		else if (this.hand.matches(Gesture.ONE)) {
+		else if (this.curState == Gesture.ONE) {
 			this.rotateAroundY(this.hand, this.prevHand)
 		}
-		else if (this.hand.matches(Gesture.ROTATE_X)) {
+		else if (this.curState == Gesture.ROTATE_X) {
 			this.rotateAroundX(this.hand, this.prevHand)
 		}
 
@@ -140,21 +157,49 @@ export class Controller {
 	 * Detect the shape of the user's hand.
 	 */
 	detectShape(results: Results | null) {
+		// check if the result is usable
+		// if not, mark this.prevHand to null to signify
+		// we can't do any calculations.
+		let newGesture = null
 		if (!results || results.multiHandLandmarks.length === 0) {
 			statusSpan.style.backgroundColor = "red"
-			// this.trackCounter = 0
-			this.prevHand = null
+			this.hand = null
+		}
+		else {
+			// valid data => start analyzing the shape
+			statusSpan.style.backgroundColor = "green"
+			this.hand = new Hand(results.multiHandLandmarks[0])
+
+			if (this.hand.matches(Gesture.CLOSED_FIST)) {
+				newGesture = Gesture.CLOSED_FIST
+			}
+			else if (this.hand.matches(Gesture.ONE)) {
+				newGesture = Gesture.ONE
+			}
+			else if (this.hand.matches(Gesture.ROTATE_X)) {
+				newGesture = Gesture.ROTATE_X
+			}
+		}
+
+		// matching our state => do nothing and continue as normal
+		if (newGesture == this.curState) {
+			this.latestGesture = newGesture
 			return
 		}
 
-		// don't do anything if there's only 1 track =>
-		// use this to eliminate flashes of hands
-		// if (++this.trackCounter == 1) return
+		// new gesture we never see before => start counting
+		if (newGesture != this.latestGesture) {
+			this.shapeCounter = 1
+		}
+		// we've seen this gesture recently => user might be switching
+		// so we start counting
+		else this.shapeCounter++
 
-		statusSpan.style.backgroundColor = "green"
-
-		// console.log("tracked")
-		this.hand = new Hand(results.multiHandLandmarks[0])
+		// pretty sure this is what the user wants => switch to the new state
+		if (this.shapeCounter >= SHAPE_COUNTER_THRESHOLD) {
+			this.curState = newGesture
+		}
+		this.latestGesture = newGesture
 
 	}
 

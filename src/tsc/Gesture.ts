@@ -102,6 +102,11 @@ const CLOSED_THUMB: FingerState = {
 
 export class Gesture {
 	/**
+	 * 
+	 */
+	// name: string
+
+	/**
 	 * The thumb joints.
 	 */
 	thumb: FingerState
@@ -128,6 +133,8 @@ export class Gesture {
 
 	constructor(thumb: FingerState=CLOSED_THUMB, index: FingerState=CLOSED_FINGER,
 		middle: FingerState=CLOSED_FINGER, ring: FingerState=CLOSED_FINGER, pinky: FingerState=CLOSED_FINGER) {
+		
+		// this.name = name
 
 		this.thumb = thumb
 		this.index = index
