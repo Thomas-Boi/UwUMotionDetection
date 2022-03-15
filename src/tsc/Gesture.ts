@@ -39,61 +39,6 @@ export interface FingerState {
 	direction: ValidDirections | InvalidDirections | null
 }
 
-/**
- * Some preset common finger. 
- */
-
-/**
- * The state of a closed non-thumb finger.
- */
-const CLOSED_FINGER: FingerState = {
-	isStraight: false,
-	direction: null
-}
-
-
-/**
- * The state of an opened finger pointing up.
- */
-const UP_FINGER: FingerState = {
-	isStraight: true,
-	direction: new ValidDirections(
-		Vector3.Up(),
-		Vector3.Up().add(Vector3.Left()),
-		Vector3.Up().add(Vector3.Right())
-	)
-}
-
-/**
- * The state of an opened thumb pointing outwards from palm.
- * Account for right hand only.
- */
-const OUTWARD_THUMB: FingerState = {
-	isStraight: true,
-	direction: new ValidDirections(
-		Vector3.Right(),
-		Vector3.Right().add(Vector3.Up()),
-		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
-		DIRECTION.TOWARD_SCREEN(),
-		Vector3.Up().add(DIRECTION.TOWARD_SCREEN())
-	)
-}
-
-/**
- * The state of a closed thumb. Opposite of an outward thumb.
- */
-const CLOSED_THUMB: FingerState = {
-	isStraight: null,
-	direction: new InvalidDirections(
-		Vector3.Right(),
-		Vector3.Right().add(Vector3.Up()),
-		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
-		DIRECTION.TOWARD_SCREEN(),
-		Vector3.Up().add(DIRECTION.TOWARD_SCREEN())
-	)
-}
-
-
 export class Gesture {
 	/**
 	 * 
@@ -125,8 +70,8 @@ export class Gesture {
 	 */
 	pinky: FingerState
 
-	constructor(thumb: FingerState=CLOSED_THUMB, index: FingerState=CLOSED_FINGER,
-		middle: FingerState=CLOSED_FINGER, ring: FingerState=CLOSED_FINGER, pinky: FingerState=CLOSED_FINGER) {
+	constructor(thumb: FingerState=CLOSED_THUMB, index: FingerState=GENERAL_CLOSED_FINGER,
+		middle: FingerState=GENERAL_CLOSED_FINGER, ring: FingerState=GENERAL_CLOSED_FINGER, pinky: FingerState=GENERAL_CLOSED_FINGER) {
 		
 		this.thumb = thumb
 		this.index = index
@@ -136,10 +81,117 @@ export class Gesture {
 	}
 }
 
+///////////////////////////// FINGERS //////////////////////////////
+
+/**
+ * The state of a closed non-thumb finger 
+ */
+const GENERAL_CLOSED_FINGER: FingerState = {
+	isStraight: false,
+	direction: null
+}
+
+/**
+ * The state of a closed non-thumb finger for a grabbing motion.
+ */
+const GRAB_CLOSED_FINGER: FingerState = {
+	isStraight: false,
+	direction: new ValidDirections(
+		Vector3.Down(),
+		Vector3.Down().add(DIRECTION.TOWARD_SCREEN())
+	)
+}
+
+/**
+ * The state of a closed non-thumb finger for a thumbs up gesture.
+ */
+const THUMBS_UP_CLOSED_FINGER: FingerState = {
+	isStraight: false,
+	direction: new ValidDirections(
+		Vector3.Right(),
+		Vector3.Right().add(Vector3.Down()),
+		Vector3.Right().add(DIRECTION.TOWARD_SCREEN()),
+		Vector3.Down(),
+		Vector3.Down().add(DIRECTION.TOWARD_SCREEN()),
+		Vector3.Right().add(Vector3.Down()).add(DIRECTION.TOWARD_SCREEN())
+	)
+}
+
+/**
+ * The state of an opened finger pointing up.
+ */
+const UP_FINGER: FingerState = {
+	isStraight: true,
+	direction: new ValidDirections(
+		Vector3.Up(),
+		Vector3.Up().add(Vector3.Left()),
+		Vector3.Up().add(Vector3.Right())
+	)
+}
+
+/**
+ * The shape of the finger to rotate an object around the x axis globally.
+ * This means the right hand's index finger is 
+ */
+const ROTATE_X_INDEX_FINGER: FingerState = {
+	isStraight: true,
+	direction: new ValidDirections(
+		Vector3.Right(),
+		Vector3.Right().add(DIRECTION.TOWARD_SCREEN()),
+		Vector3.Right().add(DIRECTION.TOWARD_SCREEN())
+	)
+}
+///////////////////////////// THUMBS //////////////////////////////
+/**
+ * The state of an opened thumb pointing outwards from palm.
+ * Account for right hand only.
+ */
+const OUTWARD_THUMB: FingerState = {
+	isStraight: true,
+	direction: new ValidDirections(
+		Vector3.Right(),
+		Vector3.Right().add(Vector3.Up()),
+		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
+		DIRECTION.TOWARD_SCREEN()
+	)
+}
+
+/**
+ * The state of a closed thumb. Opposite of an outward thumb.
+ */
+const CLOSED_THUMB: FingerState = {
+	isStraight: null,
+	direction: new InvalidDirections(
+		Vector3.Right(),
+		Vector3.Right().add(Vector3.Up()),
+		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
+		Vector3.Right().add(DIRECTION.TOWARD_SCREEN()),
+		Vector3.Up().add(DIRECTION.TOWARD_SCREEN()),
+		Vector3.Up().add(DIRECTION.AWAY_FROM_SCREEN())
+	)
+}
+
+/**
+ * The thumb for a thumbs up.
+ */
+const THUMBS_UP_THUMB: FingerState = {
+	isStraight: true,
+	direction: new ValidDirections(
+		Vector3.Up(),
+		// Vector3.Up().add(DIRECTION.TOWARD_SCREEN()),
+		// Vector3.Up().add(DIRECTION.AWAY_FROM_SCREEN())
+	)
+}
+
+
+
+///////////////////////////// GESTURES //////////////////////////////
+
 /**
  * Some preset common gestures.
  */
 export const CLOSED_FIST = new Gesture()
+export const GRAB_FIST = new Gesture(CLOSED_THUMB, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER)
 export const ONE = new Gesture(CLOSED_THUMB, UP_FINGER)
 export const TWO = new Gesture(CLOSED_THUMB, UP_FINGER, UP_FINGER)
 export const THREE = new Gesture(CLOSED_THUMB, UP_FINGER, UP_FINGER, UP_FINGER)
@@ -150,17 +202,5 @@ export const FIVE = new Gesture(OUTWARD_THUMB, UP_FINGER, UP_FINGER, UP_FINGER, 
  * Gestures specific to 3D viewer
  */
 
-/**
- * The shape of the finger to rotate an object around the x axis.
- * This means the right hand's index finger is 
- */
-const ROTATE_X_INDEX_FINGER: FingerState = {
-	isStraight: true,
-	direction: new ValidDirections(
-		Vector3.Right(),
-		Vector3.Right().add(Vector3.Up()),
-		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
-		Vector3.Right().add(DIRECTION.TOWARD_SCREEN())
-	)
-}
 export const ROTATE_X = new Gesture(CLOSED_THUMB, ROTATE_X_INDEX_FINGER)
+export const THUMBS_UP = new Gesture(THUMBS_UP_THUMB, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER)

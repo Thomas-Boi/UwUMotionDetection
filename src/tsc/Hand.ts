@@ -64,6 +64,7 @@ export class Hand {
 			let finger: Finger = this[fingerName]
 			let fingerState: FingerState = gesture[fingerName]
 
+			// console.log(fingerName, finger.direction)
 			if (fingerState.isStraight !== null) {
 				if (fingerState.isStraight !== finger.isStraight) 
 					return false

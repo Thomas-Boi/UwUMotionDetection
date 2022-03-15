@@ -15,12 +15,18 @@ const NEAR_UP_LEFT_AXIS_BOUND = Math.PI * 5 / 6
 /*
 	* The amount of variation we are giving 
 	* the PIP and DIP when considering whether they are on 
-	* the line. For example, if PIP is 0.1 or less off the 
+	* the line. For example, if PIP is equal or less off the 
 	* perfect vector between MCP and TIP, we will still consider
 	* it to be on the line (like a margin of error).
 	* Smaller => more accurate.
 	**/
 const STRAIGHTNESS_VARIATION = 0.01
+
+/*
+	* The straightness variation but for thumb specifically.
+	See STRAIGHTNESS_VARIATION for more details.
+	**/
+const THUMB_STRAIGHTNESS_VARIATION = 0.012
 
 /**
  * The indices for finger joints within their LandmarkList.
@@ -72,14 +78,14 @@ export class Finger {
 	 * The function does take in minor variation when evaluating straightness.
 	 * @param MCPIndex the index we are using to find the base/mcp of a finger.
 	 */
-	analyzeFinger(MCPIndex: number=FINGER_INDICES.MCP) {
+	analyzeFinger(MCPIndex: number=FINGER_INDICES.MCP, variation: number=STRAIGHTNESS_VARIATION) {
 		let tip = new Vector3(this.joints[FINGER_INDICES.TIP].x, this.joints[FINGER_INDICES.TIP].y, this.joints[FINGER_INDICES.TIP].z) 
 		let mcp = new Vector3(this.joints[MCPIndex].x, this.joints[MCPIndex].y, this.joints[MCPIndex].z) 
 
 		// get the vector between the two
 		let line = tip.subtract(mcp)
 
-		this.findStraightness(line, tip)
+		this.findStraightness(line, tip, variation)
 		this.findFingerDirection(line)
 	}
 
@@ -88,7 +94,7 @@ export class Finger {
 	 * @param line the vector we are checking whether the line is on it.
 	 * @param tip the TCP point as a Vector3.
 	 */
-	findStraightness(line: Vector3, tip: Vector3) {
+	findStraightness(line: Vector3, tip: Vector3, variation: number) {
 		// finding whether finger is straight strategy:
 		// find the vector between the MCP and TIP.
 		// determine whether PIP and DIP fit on this line
@@ -101,9 +107,9 @@ export class Finger {
 		// it to be "on the line".
 
 		let pip = new Vector3(this.joints[FINGER_INDICES.PIP].x, this.joints[FINGER_INDICES.PIP].y, this.joints[FINGER_INDICES.PIP].z) 
-		let pipOnLine = fitOnLine(pip, tip, line, STRAIGHTNESS_VARIATION)
+		let pipOnLine = fitOnLine(pip, tip, line, variation)
 		let dip = new Vector3(this.joints[FINGER_INDICES.DIP].x, this.joints[FINGER_INDICES.DIP].y, this.joints[FINGER_INDICES.DIP].z) 
-		let dipOnLine = fitOnLine(dip, tip, line, STRAIGHTNESS_VARIATION)
+		let dipOnLine = fitOnLine(dip, tip, line, variation)
 		this.isStraight = pipOnLine && dipOnLine
 	}
 
@@ -167,6 +173,6 @@ export class Thumb extends Finger {
 	 * MUST be in the order of MCP, PIP, DIP and TIP.
 	 */
 	analyzeFinger() {
-		super.analyzeFinger(FINGER_INDICES.THUMB_MCP)
+		super.analyzeFinger(FINGER_INDICES.THUMB_MCP, THUMB_STRAIGHTNESS_VARIATION)
 	}
 }

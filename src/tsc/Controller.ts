@@ -6,14 +6,16 @@ import * as BABYLON from "babylonjs"
 import { Hand } from "./Hand"
 import { FINGER_INDICES } from "./Finger"
 import { getDelta } from "./util"
+import { Vector3 } from "babylonjs"
 
 const TRANSLATE_MULTIPLIER = 4
-const ROTATE_MULTIPLIER = 4
+const ROTATE_MULTIPLIER = 6
+const SCALE_MULTIPLIER = 2
 
 // when the track counter pass this threshold,
 // we are confident that the user is intentionally making a shape 
 // with their hand and not due to noises.
-const SHAPE_COUNTER_THRESHOLD = 5
+const SHAPE_COUNTER_THRESHOLD = 3
 const statusSpan = document.getElementById("status")
 
 /**
@@ -33,7 +35,7 @@ export class Controller {
 	/**
 	 * A BABYLON Camera object
 	 */
-	camera: BABYLON.Camera
+	camera: BABYLON.ArcRotateCamera
 
 	/**
 	 * Hold information on the state of the user's current hand.
@@ -93,7 +95,10 @@ export class Controller {
 		
 		const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), this.scene)
 		this.mesh = BABYLON.MeshBuilder.CreateBox("box", {
-			faceColors: [new BABYLON.Color4(1, 0, 0, 0)]
+			faceColors: [
+				new BABYLON.Color4(1, 0, 0, 0), new BABYLON.Color4(1, 0, 0, 0), new BABYLON.Color4(1, 0, 0, 0),
+				new BABYLON.Color4(0, 1, 0, 0), new BABYLON.Color4(0, 1, 0, 0), new BABYLON.Color4(0, 1, 0, 0)
+			]
 		}, this.scene)
 
 		// attach the render callback
@@ -128,19 +133,16 @@ export class Controller {
 		// the current hand gesture of the user.
 		this.detectShape(results)
 
-		if (!(this.curState && this.prevHand && this.hand)) {
-			// do nothing, just skip the checks
-
-			// for curState
-			// this is when we are sure there's nothing to parse
-			// so do nothing.
+		if (!(this.hand && this.prevHand)) {
+			// do nothing since we need both to be valid
+			// to do calc, just skip the checks
 
 			// for prevHand
 			// if there's a none flash in between
 			// two valid gestures, the 2nd valid gesture will have
 			// a null prevHand => this checks avoid it
 		}
-		else if (this.curState == Gesture.CLOSED_FIST) {
+		else if (this.curState == Gesture.GRAB_FIST) {
 			this.translate(this.hand, this.prevHand)
 		}
 		else if (this.curState == Gesture.ONE) {
@@ -148,6 +150,9 @@ export class Controller {
 		}
 		else if (this.curState == Gesture.ROTATE_X) {
 			this.rotateAroundX(this.hand, this.prevHand)
+		}
+		else if (this.curState == Gesture.THUMBS_UP) {
+			this.zoom(this.hand, this.prevHand)
 		}
 
 		this.prevHand = this.hand
@@ -170,14 +175,17 @@ export class Controller {
 			statusSpan.style.backgroundColor = "#02fd49" // neon green
 			this.hand = new Hand(results.multiHandLandmarks[0])
 
-			if (this.hand.matches(Gesture.CLOSED_FIST)) {
-				newGesture = Gesture.CLOSED_FIST
+			if (this.hand.matches(Gesture.GRAB_FIST)) {
+				newGesture = Gesture.GRAB_FIST
 			}
 			else if (this.hand.matches(Gesture.ONE)) {
 				newGesture = Gesture.ONE
 			}
 			else if (this.hand.matches(Gesture.ROTATE_X)) {
 				newGesture = Gesture.ROTATE_X
+			}
+			else if (this.hand.matches(Gesture.THUMBS_UP)) {
+				newGesture = Gesture.THUMBS_UP
 			}
 		}
 
@@ -221,6 +229,21 @@ export class Controller {
 	}
 
 	/**
+	 * Zoom/scale the object on screen based on the hand and prevHand.
+	 * @param hand the hand of this current frame.
+	 * @param prevHand the hand of the previous frame.
+	 */
+	zoom(hand: Hand, prevHand: Hand) {
+		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
+		// has to flip horizontal footage since camera flips the view
+		if (this.isSelfieMode) horizontalDelta *= -1
+
+		let scale = horizontalDelta * SCALE_MULTIPLIER
+		this.mesh.scaling.addInPlaceFromFloats(scale, scale, scale)
+
+	}
+
+	/**
 	 * Rotate the object around the y axis on screen based on the hand and prevHand.
 	 * @param hand the hand of this current frame.
 	 * @param prevHand the hand of the previous frame.
@@ -243,8 +266,9 @@ export class Controller {
 		// has to fliip the vertical to get the right rotation
 		let verticalDelta = -getDelta(hand.index.joints[FINGER_INDICES.TIP].y, prevHand.index.joints[FINGER_INDICES.TIP].y, 5)
 
-		this.mesh.rotate(BABYLON.Axis.X, ROTATE_MULTIPLIER * verticalDelta)
+		this.mesh.rotate(BABYLON.Axis.X, ROTATE_MULTIPLIER * verticalDelta, BABYLON.Space.WORLD)
 	}
+
 	/**
 	 * Subscribe to the HandTracker object for the first time.
 	 * This function will be call the first time the HandTracker
