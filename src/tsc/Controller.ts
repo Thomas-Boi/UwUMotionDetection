@@ -98,7 +98,8 @@ export class Controller {
 			faceColors: [
 				new BABYLON.Color4(1, 0, 0, 0), new BABYLON.Color4(1, 0, 0, 0), new BABYLON.Color4(1, 0, 0, 0),
 				new BABYLON.Color4(0, 1, 0, 0), new BABYLON.Color4(0, 1, 0, 0), new BABYLON.Color4(0, 1, 0, 0)
-			]
+			],
+			size: 0.5
 		}, this.scene)
 
 		// attach the render callback
@@ -121,7 +122,7 @@ export class Controller {
 	firstFrameCallback(tracker: HandTracker, key: string, results: Results | null) {
 		tracker.removeListener(key)
 		tracker.addListener(this.onResultsCallback.bind(this))
-		document.getElementById("loading").style.display = "none"
+		document.getElementById("loadingScreen").style.display = "none"
 	}
 
 	/**

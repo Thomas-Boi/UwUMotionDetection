@@ -6,16 +6,28 @@
 	</head>
 	<body>
 		<span id="status"></span>
-		<div id='loading'>
-			<span>
+		<div id='loadingScreen'>
+			<span id="loadingUI">
 				<div class='spinner'></div>
 				Loading...
 			</span>
+			<div id="instructionDiv">
+				<img class="instruction" src="build/img/translate.png">
+				<img class="instruction" src="build/img/rotate_y.png">
+				<img class="instruction" src="build/img/rotate_x.png">
+				<img class="instruction" src="build/img/zoom.png">
+				<img class="instruction" src="build/img/translate.png">
+				<span>Translate</span>
+				<span>Rotate Y</span>
+				<span>Rotate X</span>
+				<span>Zoom</span>
+				<span>Reset</span>
+			</div>
 		</div>
 		<canvas id='canvas'></canvas>
 		<div id='test'></div>
 	</body>
 	
-	<script src='build/js/index.js' type='module'></script>
+	<!-- <script src='build/js/index.js' type='module'></script> -->
 
 </html>
