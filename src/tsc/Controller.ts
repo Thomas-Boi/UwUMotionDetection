@@ -12,7 +12,11 @@ import { Vector3 } from "babylonjs"
 const TRANSLATE_MULTIPLIER = 4
 const ROTATE_MULTIPLIER = 6
 const SCALE_MULTIPLIER = 2
-const RESET_COUNTER_THRESHOLD_MILISEC = 2000
+
+// tracks how long the user needs to hold their
+// hand to activate something
+const RESET_COUNTER_THRESHOLD_MILISEC = 1000
+const START_THRESHOLD_MILISEC = 600
 
 // when the track counter pass this threshold,
 // we are confident that the user is intentionally making a shape 
@@ -102,6 +106,7 @@ export class Controller {
 		this.shapeCounter = 0
 
 		this.gesturesToDetect = [
+			Gesture.FIVE,
 			Gesture.GRAB_FIST,
 			Gesture.ONE,
 			Gesture.ROTATE_X,
@@ -147,9 +152,22 @@ export class Controller {
 	 * @param results 
 	 */
 	firstFrameCallback(tracker: HandTracker, key: string, results: Results | null) {
-		tracker.removeListener(key)
-		tracker.addListener(this.onResultsCallback.bind(this))
-		document.getElementById("loadingScreen").style.display = "none"
+		// show the start message
+		document.getElementById("loadingUI").style.display = "none"
+		document.getElementById("startMsg").style.display = "flex"
+		document.getElementById("status").style.display = "inline-block"
+
+		// check and see the state of the Controller, which is
+		// the current hand gesture of the user.
+		this.detectShape(results)
+
+		if (this.curState == Gesture.FIVE) {
+			if (Date.now() - this.gestureStartTime >= START_THRESHOLD_MILISEC) {
+				tracker.removeListener(key)
+				tracker.addListener(this.onResultsCallback.bind(this))
+				document.getElementById("loadingScreen").style.display = "none"
+			}
+		}
 	}
 
 	/**

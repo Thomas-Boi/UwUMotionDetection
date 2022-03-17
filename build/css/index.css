@@ -25,10 +25,11 @@ canvas {
   position: fixed;
   top: 0;
   left: 0;
-  display: inline-block;
+  /* display: inline-block; JS need to set #status to inline-block to work*/
   width: 100px;
   height: 50px;
-  opacity: 1;
+  z-index: 2;
+  display: none;
 }
 
 @keyframes spin {
@@ -55,6 +56,7 @@ canvas {
   row-gap: 5%;
 }
 
+/* LOADING SPINNER  */
 #loadingUI {
   position: relative;
   width: min-content;
@@ -63,8 +65,8 @@ canvas {
 }
 
 .spinner {
-  width: 15vw;
-  height: 15vw;
+  width: 12vw;
+  height: 12vw;
   animation: spin 2s linear infinite;
   border: 32px solid white;
   border-top: 32px solid black;
@@ -78,6 +80,23 @@ canvas {
   align-self: center;
   font-size: 2rem;
 }
+
+/* START MESSAGE */
+#startMsg {
+  /* display: flex; Styling works for display: flex -> JS has to set it to this*/
+  color: white;
+  font-size: 6rem;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  display: none
+}
+
+.startGesture {
+  margin-right: 2rem;
+}
+
+/* INSTRUCTION */
 
 #instructionDiv {
   display: grid;
@@ -98,8 +117,7 @@ canvas {
 }
 
 .instructionText {
-  height: 105%;
-  padding-top: 40%;
+  height: 100%;
   width: 100%;
   border-right: 3px solid white;
 }
