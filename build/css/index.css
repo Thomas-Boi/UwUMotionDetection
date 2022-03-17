@@ -42,7 +42,6 @@ canvas {
 
 #loadingScreen {
   color: white;
-  font-size: 30px;
   position: fixed;
   height: 100%;
   width: 100%;
@@ -56,28 +55,51 @@ canvas {
   row-gap: 5%;
 }
 
+#loadingUI {
+  position: relative;
+  width: min-content;
+  justify-self: center;
+  display: grid;
+}
+
 .spinner {
-  width: 120px;
-  height: 120px;
+  width: 15vw;
+  height: 15vw;
   animation: spin 2s linear infinite;
-  border: 32px solid #bebebe;
-  border-top: 32px solid #3498db;
+  border: 32px solid white;
+  border-top: 32px solid black;
   border-radius: 50%;
   margin: auto;
+}
+
+.spinnerText {
+  width: 100%;
+  position: absolute;
+  align-self: center;
+  font-size: 2rem;
 }
 
 #instructionDiv {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: 4fr 3fr;
   align-items: center;
+  justify-items: center;
   width: 100%;
   height: 100%;
-  column-gap: 3%;
+  font-size: 3rem;
+  border-top: 3px solid white;
 }
 
 .instruction {
-  justify-self: stretch;
   height: auto; 
   width: 100%;
+  border-right: 3px solid white;
+}
+
+.instructionText {
+  height: 105%;
+  padding-top: 40%;
+  width: 100%;
+  border-right: 3px solid white;
 }
