@@ -8,9 +8,11 @@ import { FINGER_INDICES } from "./Finger"
 import { getDelta } from "./util"
 import { Vector3 } from "babylonjs"
 
+// for interacting with the cube
 const TRANSLATE_MULTIPLIER = 4
 const ROTATE_MULTIPLIER = 6
 const SCALE_MULTIPLIER = 2
+const RESET_COUNTER_THRESHOLD_MILISEC = 2000
 
 // when the track counter pass this threshold,
 // we are confident that the user is intentionally making a shape 
@@ -69,6 +71,22 @@ export class Controller {
 	 */
 	latestGesture: null | Gesture.Gesture
 
+	/**
+	 * The counter for tracking the reset gesture. Increment
+	 * for every second the user holds the gesture.
+	 */
+	resetCounter: number
+
+	/**
+	 * The current time in milisecond.
+	 */
+	gestureStartTime: number
+
+	/**
+	 * The gestures we want the controller to look for.
+	 */
+	gesturesToDetect: Array<Gesture.Gesture>
+
 	constructor(facingMode: "user"|"environment") {
 		this.scene = null 
 		this.mesh = null
@@ -82,6 +100,15 @@ export class Controller {
 
 		this.isSelfieMode = facingMode === "user" ? true : false
 		this.shapeCounter = 0
+
+		this.gesturesToDetect = [
+			Gesture.GRAB_FIST,
+			Gesture.ONE,
+			Gesture.ROTATE_X,
+			Gesture.THUMBS_UP,
+			Gesture.L_SHAPE
+		]
+
 	}
 
 	init3DScene() {
@@ -155,6 +182,14 @@ export class Controller {
 		else if (this.curState == Gesture.THUMBS_UP) {
 			this.zoom(this.hand, this.prevHand)
 		}
+		else if (this.curState == Gesture.L_SHAPE) {
+			if (Date.now() - this.gestureStartTime >= RESET_COUNTER_THRESHOLD_MILISEC) {
+				this.reset()
+				// change the start time so we don't reset multiple times
+				this.gestureStartTime = Date.now()
+			}
+
+		}
 
 		this.prevHand = this.hand
 	}
@@ -175,18 +210,11 @@ export class Controller {
 			// valid data => start analyzing the shape
 			statusSpan.style.backgroundColor = "#02fd49" // neon green
 			this.hand = new Hand(results.multiHandLandmarks[0])
-
-			if (this.hand.matches(Gesture.GRAB_FIST)) {
-				newGesture = Gesture.GRAB_FIST
-			}
-			else if (this.hand.matches(Gesture.ONE)) {
-				newGesture = Gesture.ONE
-			}
-			else if (this.hand.matches(Gesture.ROTATE_X)) {
-				newGesture = Gesture.ROTATE_X
-			}
-			else if (this.hand.matches(Gesture.THUMBS_UP)) {
-				newGesture = Gesture.THUMBS_UP
+			for (let gesture of this.gesturesToDetect) {
+				if (this.hand.matches(gesture)) {
+					newGesture = gesture
+					break
+				}
 			}
 		}
 
@@ -207,6 +235,8 @@ export class Controller {
 		// pretty sure this is what the user wants => switch to the new state
 		if (this.shapeCounter >= SHAPE_COUNTER_THRESHOLD) {
 			this.curState = newGesture
+			// only get the time when switch to new gesture
+			this.gestureStartTime = Date.now()
 		}
 		this.latestGesture = newGesture
 
@@ -227,21 +257,6 @@ export class Controller {
 
 		this.mesh.translate(BABYLON.Axis.X, TRANSLATE_MULTIPLIER * horizontalDelta, BABYLON.Space.WORLD)
 		this.mesh.translate(BABYLON.Axis.Y, TRANSLATE_MULTIPLIER * verticalDelta, BABYLON.Space.WORLD)
-	}
-
-	/**
-	 * Zoom/scale the object on screen based on the hand and prevHand.
-	 * @param hand the hand of this current frame.
-	 * @param prevHand the hand of the previous frame.
-	 */
-	zoom(hand: Hand, prevHand: Hand) {
-		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
-		// has to flip horizontal footage since camera flips the view
-		if (this.isSelfieMode) horizontalDelta *= -1
-
-		let scale = horizontalDelta * SCALE_MULTIPLIER
-		this.mesh.scaling.addInPlaceFromFloats(scale, scale, scale)
-
 	}
 
 	/**
@@ -268,6 +283,30 @@ export class Controller {
 		let verticalDelta = -getDelta(hand.index.joints[FINGER_INDICES.TIP].y, prevHand.index.joints[FINGER_INDICES.TIP].y, 5)
 
 		this.mesh.rotate(BABYLON.Axis.X, ROTATE_MULTIPLIER * verticalDelta, BABYLON.Space.WORLD)
+	}
+
+	/**
+	 * Zoom/scale the object on screen based on the hand and prevHand.
+	 * @param hand the hand of this current frame.
+	 * @param prevHand the hand of the previous frame.
+	 */
+	zoom(hand: Hand, prevHand: Hand) {
+		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
+		// has to flip horizontal footage since camera flips the view
+		if (this.isSelfieMode) horizontalDelta *= -1
+
+		let scale = horizontalDelta * SCALE_MULTIPLIER
+		this.mesh.scaling.addInPlaceFromFloats(scale, scale, scale)
+
+	}
+
+	/**
+	 * Reset the cube's position, rotation, and scale to its original.
+	 */
+	reset() {
+		this.mesh.scaling = new Vector3(1, 1, 1)
+		this.mesh.position = new Vector3(0, 0, 0)
+		this.mesh.rotation = new Vector3(0, 0, 0)
 	}
 
 	/**

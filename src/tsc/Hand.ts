@@ -39,6 +39,11 @@ export class Hand {
 	 */
 	pinky: Finger
 
+	/**
+	 * The names of the finger.
+	 */
+	fingerNames: Array<string>
+
 	constructor(hand: LandmarkList) {
 		this.wrist = hand[LANDMARK_INDEX.WRIST]
 		this.thumb = new Thumb(hand.slice(LANDMARK_INDEX.THUMB_CMC, LANDMARK_INDEX.THUMB_TIP + 1))
@@ -52,6 +57,14 @@ export class Hand {
 		this.middle.analyzeFinger();
 		this.ring.analyzeFinger();
 		this.pinky.analyzeFinger();
+
+		this.fingerNames = [
+			"thumb",
+			"index",
+			"middle",
+			"ring",
+			"pinky"
+		]
 	}
 
 
@@ -60,11 +73,10 @@ export class Hand {
 	 * @returns whether the hand is making the gesture passed in. 
 	 */
 	matches(gesture: Gesture): boolean {
-		for (let fingerName of Object.keys(gesture)) {
+		for (let fingerName of this.fingerNames) {
 			let finger: Finger = this[fingerName]
 			let fingerState: FingerState = gesture[fingerName]
 
-			// console.log(fingerName, finger.direction)
 			if (fingerState.isStraight !== null) {
 				if (fingerState.isStraight !== finger.isStraight) 
 					return false

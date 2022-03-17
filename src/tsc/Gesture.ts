@@ -41,9 +41,9 @@ export interface FingerState {
 
 export class Gesture {
 	/**
-	 * 
+	 * Name of the gesture.
 	 */
-	// name: string
+	name: string
 
 	/**
 	 * The thumb joints.
@@ -70,9 +70,10 @@ export class Gesture {
 	 */
 	pinky: FingerState
 
-	constructor(thumb: FingerState=CLOSED_THUMB, index: FingerState=GENERAL_CLOSED_FINGER,
+	constructor(name: string, thumb: FingerState=CLOSED_THUMB, index: FingerState=GENERAL_CLOSED_FINGER,
 		middle: FingerState=GENERAL_CLOSED_FINGER, ring: FingerState=GENERAL_CLOSED_FINGER, pinky: FingerState=GENERAL_CLOSED_FINGER) {
 		
+		this.name = name
 		this.thumb = thumb
 		this.index = index
 		this.middle = middle
@@ -98,7 +99,7 @@ const GRAB_CLOSED_FINGER: FingerState = {
 	isStraight: false,
 	direction: new ValidDirections(
 		Vector3.Down(),
-		Vector3.Down().add(DIRECTION.TOWARD_SCREEN())
+		Vector3.Down().add(DIRECTION.AWAY_FROM_SCREEN())
 	)
 }
 
@@ -110,10 +111,10 @@ const THUMBS_UP_CLOSED_FINGER: FingerState = {
 	direction: new ValidDirections(
 		Vector3.Right(),
 		Vector3.Right().add(Vector3.Down()),
-		Vector3.Right().add(DIRECTION.TOWARD_SCREEN()),
+		Vector3.Right().add(DIRECTION.AWAY_FROM_SCREEN()),
 		Vector3.Down(),
-		Vector3.Down().add(DIRECTION.TOWARD_SCREEN()),
-		Vector3.Right().add(Vector3.Down()).add(DIRECTION.TOWARD_SCREEN())
+		Vector3.Down().add(DIRECTION.AWAY_FROM_SCREEN()),
+		Vector3.Right().add(Vector3.Down()).add(DIRECTION.AWAY_FROM_SCREEN())
 	)
 }
 
@@ -137,8 +138,8 @@ const ROTATE_X_INDEX_FINGER: FingerState = {
 	isStraight: true,
 	direction: new ValidDirections(
 		Vector3.Right(),
-		Vector3.Right().add(DIRECTION.TOWARD_SCREEN()),
-		Vector3.Right().add(DIRECTION.TOWARD_SCREEN())
+		Vector3.Right().add(DIRECTION.AWAY_FROM_SCREEN()),
+		Vector3.Right().add(DIRECTION.AWAY_FROM_SCREEN())
 	)
 }
 ///////////////////////////// THUMBS //////////////////////////////
@@ -151,8 +152,9 @@ const OUTWARD_THUMB: FingerState = {
 	direction: new ValidDirections(
 		Vector3.Right(),
 		Vector3.Right().add(Vector3.Up()),
-		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
-		DIRECTION.TOWARD_SCREEN()
+		Vector3.Right().add(Vector3.Up()).add(DIRECTION.AWAY_FROM_SCREEN()),
+		Vector3.Right().add(DIRECTION.AWAY_FROM_SCREEN()),
+		DIRECTION.AWAY_FROM_SCREEN()
 	)
 }
 
@@ -164,10 +166,10 @@ const CLOSED_THUMB: FingerState = {
 	direction: new InvalidDirections(
 		Vector3.Right(),
 		Vector3.Right().add(Vector3.Up()),
-		Vector3.Right().add(Vector3.Up()).add(DIRECTION.TOWARD_SCREEN()),
-		Vector3.Right().add(DIRECTION.TOWARD_SCREEN()),
-		Vector3.Up().add(DIRECTION.TOWARD_SCREEN()),
-		Vector3.Up().add(DIRECTION.AWAY_FROM_SCREEN())
+		Vector3.Right().add(Vector3.Up()).add(DIRECTION.AWAY_FROM_SCREEN()),
+		Vector3.Right().add(DIRECTION.AWAY_FROM_SCREEN()),
+		Vector3.Up().add(DIRECTION.AWAY_FROM_SCREEN()),
+		Vector3.Up().add(DIRECTION.TOWARD_SCREEN())
 	)
 }
 
@@ -190,17 +192,18 @@ const THUMBS_UP_THUMB: FingerState = {
 /**
  * Some preset common gestures.
  */
-export const CLOSED_FIST = new Gesture()
-export const GRAB_FIST = new Gesture(CLOSED_THUMB, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER)
-export const ONE = new Gesture(CLOSED_THUMB, UP_FINGER)
-export const TWO = new Gesture(CLOSED_THUMB, UP_FINGER, UP_FINGER)
-export const THREE = new Gesture(CLOSED_THUMB, UP_FINGER, UP_FINGER, UP_FINGER)
-export const FOUR = new Gesture(CLOSED_THUMB, UP_FINGER, UP_FINGER, UP_FINGER, UP_FINGER)
-export const FIVE = new Gesture(OUTWARD_THUMB, UP_FINGER, UP_FINGER, UP_FINGER, UP_FINGER)
+export const CLOSED_FIST = new Gesture("closedFist")
+export const GRAB_FIST = new Gesture("grabFist", CLOSED_THUMB, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER, GRAB_CLOSED_FINGER)
+export const ONE = new Gesture("one", CLOSED_THUMB, UP_FINGER)
+export const TWO = new Gesture("two", CLOSED_THUMB, UP_FINGER, UP_FINGER)
+export const THREE = new Gesture("three", CLOSED_THUMB, UP_FINGER, UP_FINGER, UP_FINGER)
+export const FOUR = new Gesture("four", CLOSED_THUMB, UP_FINGER, UP_FINGER, UP_FINGER, UP_FINGER)
+export const FIVE = new Gesture("five", OUTWARD_THUMB, UP_FINGER, UP_FINGER, UP_FINGER, UP_FINGER)
 
 /**
  * Gestures specific to 3D viewer
  */
 
-export const ROTATE_X = new Gesture(CLOSED_THUMB, ROTATE_X_INDEX_FINGER)
-export const THUMBS_UP = new Gesture(THUMBS_UP_THUMB, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER)
+export const ROTATE_X = new Gesture("rotateX", CLOSED_THUMB, ROTATE_X_INDEX_FINGER)
+export const THUMBS_UP = new Gesture("thumbsUp", THUMBS_UP_THUMB, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER, THUMBS_UP_CLOSED_FINGER)
+export const L_SHAPE = new Gesture("lShape", OUTWARD_THUMB, UP_FINGER, GENERAL_CLOSED_FINGER, GENERAL_CLOSED_FINGER, GENERAL_CLOSED_FINGER)
