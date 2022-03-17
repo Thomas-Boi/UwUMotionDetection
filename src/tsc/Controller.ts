@@ -21,7 +21,7 @@ const START_THRESHOLD_MILISEC = 600
 // when the track counter pass this threshold,
 // we are confident that the user is intentionally making a shape 
 // with their hand and not due to noises.
-const SHAPE_COUNTER_THRESHOLD = 3
+const SHAPE_COUNTER_THRESHOLD = 5
 const statusSpan = document.getElementById("status")
 
 /**

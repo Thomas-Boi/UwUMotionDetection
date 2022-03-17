@@ -179,9 +179,7 @@ const CLOSED_THUMB: FingerState = {
 const THUMBS_UP_THUMB: FingerState = {
 	isStraight: true,
 	direction: new ValidDirections(
-		Vector3.Up(),
-		// Vector3.Up().add(DIRECTION.TOWARD_SCREEN()),
-		// Vector3.Up().add(DIRECTION.AWAY_FROM_SCREEN())
+		Vector3.Up()
 	)
 }
 

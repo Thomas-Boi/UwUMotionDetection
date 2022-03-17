@@ -26,7 +26,7 @@ const STRAIGHTNESS_VARIATION = 0.01
 	* The straightness variation but for thumb specifically.
 	See STRAIGHTNESS_VARIATION for more details.
 	**/
-const THUMB_STRAIGHTNESS_VARIATION = 0.012
+const THUMB_STRAIGHTNESS_VARIATION = 0.017
 
 /**
  * The indices for finger joints within their LandmarkList.
