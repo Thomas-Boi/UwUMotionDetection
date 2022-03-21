@@ -167,7 +167,7 @@ export class Controller {
 				tracker.addListener(this.onResultsCallback.bind(this))
 				document.getElementById("loadingScreen").style.display = "none"
 				console.log("scroll")
-				document.getElementById("canvas").scrollIntoView()
+				// document.getElementById("canvas").scrollIntoView()
 			}
 		}
 	}
