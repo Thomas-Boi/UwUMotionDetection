@@ -9,7 +9,7 @@ import { getDelta } from "./util"
 import { Vector3 } from "babylonjs"
 
 // for interacting with the cube
-const TRANSLATE_MULTIPLIER = 4
+const TRANSLATE_MULTIPLIER = 6
 const ROTATE_MULTIPLIER = 6
 const SCALE_MULTIPLIER = 4
 
@@ -21,7 +21,7 @@ const START_THRESHOLD_MILISEC = 600
 // when the track counter pass this threshold,
 // we are confident that the user is intentionally making a shape 
 // with their hand and not due to noises.
-const SHAPE_COUNTER_THRESHOLD = 5
+const SHAPE_COUNTER_THRESHOLD = 7
 
 // report the status to the user
 const detectedSign = document.getElementById("detectedSign")
@@ -321,11 +321,9 @@ export class Controller {
 	 * @param prevHand the hand of the previous frame.
 	 */
 	zoom(hand: Hand, prevHand: Hand) {
-		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x)
-		// has to flip horizontal footage since camera flips the view
-		if (!this.isSelfieMode) {
-			horizontalDelta *= -1
-		} 
+		// has to flip the scale because our movement is opposite of the camera
+		// don't need to check for isSelfieThough since we aren't moving on the canvas, just scaling
+		let horizontalDelta = -getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x)
 
 		let scale = horizontalDelta * SCALE_MULTIPLIER
 		this.mesh.scaling.addInPlaceFromFloats(scale, scale, scale)

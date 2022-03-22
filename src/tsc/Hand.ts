@@ -52,10 +52,15 @@ export class Hand {
 		this.ring = new Finger(hand.slice(LANDMARK_INDEX.RING_FINGER_MCP, LANDMARK_INDEX.RING_FINGER_TIP + 1))
 		this.pinky = new Finger(hand.slice(LANDMARK_INDEX.PINKY_MCP, LANDMARK_INDEX.PINKY_TIP + 1))
 
+		// console.log("thumb")
 		this.thumb.analyzeFinger();
+		// console.log("index")
 		this.index.analyzeFinger();
+		// console.log("middle")
 		this.middle.analyzeFinger();
+		// console.log("ring")
 		this.ring.analyzeFinger();
+		// console.log("pinky")
 		this.pinky.analyzeFinger();
 
 		this.fingerNames = [
@@ -82,8 +87,8 @@ export class Hand {
 
 			if (fingerState.isStraight !== null) {
 				if (fingerState.isStraight !== finger.isStraight) {
-					// if (gesture.name == "five") {
-					// 	console.log("Failed at finger straightness: ", fingerName)
+					// if (gesture.name == "GRAB_FIST") {
+					// 	console.log("Failed at finger straightness: ", fingerName, finger.isStraight)
 					// }
 					return false
 				}
@@ -96,14 +101,14 @@ export class Hand {
 					direction => finger.direction.equals(direction)) 
 
 			if (fingerState.direction instanceof ValidDirections && searchResult === undefined) {
-				// if (gesture.name == "five") console.log("Failed at finger direction: ", {
+				// if (gesture.name == "GRAB_FIST") console.log("Failed at finger direction: ", {
 				// 	fingerName,
 				// 	direction: finger.direction
 				// })
 				return false // doesn't match any => finger failed => whole gesture fails
 			}
 			else if (fingerState.direction instanceof InvalidDirections && searchResult !== undefined) {
-				// if (gesture.name == "five") console.log("Failed at finger: ", fingerName)
+				// if (gesture.name == "GRAB_FIST") console.log("Failed at finger: ", fingerName)
 				return false // match invalid vector => finger failed
 			}
 		}
