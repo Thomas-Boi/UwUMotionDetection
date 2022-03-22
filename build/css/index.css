@@ -1,6 +1,7 @@
 body {
   padding: 0;
   margin: 0;
+  overflow: hidden;
 }
 
 #message {
@@ -21,10 +22,10 @@ canvas {
 }
 
 #status {
-  position: fixed;
-  top: 0;
-  left: 0;
   /* display: inline-block; JS need to set #status to inline-block to work*/
+  position: fixed;
+  top: 5vh;
+  left: 3vw;
   width: 100px;
   height: 50px;
   z-index: 2;
@@ -41,6 +42,8 @@ canvas {
 }
 
 #loadingScreen {
+  /* Flip the text horizontally */
+  transform: rotateY(180deg);
   color: white;
   position: fixed;
   height: 100%;
@@ -64,8 +67,8 @@ canvas {
 }
 
 .spinner {
-  width: 12vw;
-  height: 12vw;
+  width: 13vw;
+  height: 13vw;
   animation: spin 2s linear infinite;
   border: 32px solid white;
   border-top: 32px solid black;
@@ -77,14 +80,14 @@ canvas {
   width: 100%;
   position: absolute;
   align-self: center;
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 /* START MESSAGE */
 #startMsg {
   /* display: flex; Styling works for display: flex -> JS has to set it to this*/
   color: white;
-  font-size: 6rem;
+  font-size: 3rem;
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -105,7 +108,7 @@ canvas {
   justify-items: center;
   width: 100%;
   height: 100%;
-  font-size: 3rem;
+  font-size: 2rem;
   border-top: 3px solid white;
 }
 

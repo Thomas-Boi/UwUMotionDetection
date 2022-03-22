@@ -11,7 +11,7 @@ import { Vector3 } from "babylonjs"
 // for interacting with the cube
 const TRANSLATE_MULTIPLIER = 4
 const ROTATE_MULTIPLIER = 6
-const SCALE_MULTIPLIER = 2
+const SCALE_MULTIPLIER = 4
 
 // tracks how long the user needs to hold their
 // hand to activate something
@@ -103,6 +103,11 @@ export class Controller {
 		this.init3DScene()
 
 		this.isSelfieMode = facingMode === "user" ? true : false
+		// default: everything is flipped
+		// if we are testing on laptop, unflip it
+		if (this.isSelfieMode) {
+			document.getElementById("loadingScreen").style.transform = ""
+		}
 		this.shapeCounter = 0
 
 		this.gesturesToDetect = [
@@ -166,8 +171,6 @@ export class Controller {
 				tracker.removeListener(key)
 				tracker.addListener(this.onResultsCallback.bind(this))
 				document.getElementById("loadingScreen").style.display = "none"
-				console.log("scroll")
-				// document.getElementById("canvas").scrollIntoView()
 			}
 		}
 	}
@@ -221,7 +224,7 @@ export class Controller {
 		// check if the result is usable
 		// if not, mark this.prevHand to null to signify
 		// we can't do any calculations.
-		let newGesture = null
+		let newGesture: Gesture.Gesture = null
 		if (!results || results.multiHandLandmarks.length === 0) {
 			statusSpan.style.backgroundColor = "#ff0007"  // bright red
 			this.hand = null
@@ -313,11 +316,12 @@ export class Controller {
 	zoom(hand: Hand, prevHand: Hand) {
 		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
 		// has to flip horizontal footage since camera flips the view
-		if (this.isSelfieMode) horizontalDelta *= -1
+		if (!this.isSelfieMode) {
+			horizontalDelta *= -1
+		} 
 
 		let scale = horizontalDelta * SCALE_MULTIPLIER
 		this.mesh.scaling.addInPlaceFromFloats(scale, scale, scale)
-
 	}
 
 	/**

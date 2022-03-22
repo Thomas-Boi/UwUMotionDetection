@@ -73,13 +73,20 @@ export class Hand {
 	 * @returns whether the hand is making the gesture passed in. 
 	 */
 	matches(gesture: Gesture): boolean {
+		// if (gesture.name == "five") {
+		// 	console.log("Checking gesture:", gesture.name)
+		// }
 		for (let fingerName of this.fingerNames) {
 			let finger: Finger = this[fingerName]
 			let fingerState: FingerState = gesture[fingerName]
 
 			if (fingerState.isStraight !== null) {
-				if (fingerState.isStraight !== finger.isStraight) 
+				if (fingerState.isStraight !== finger.isStraight) {
+					// if (gesture.name == "five") {
+					// 	console.log("Failed at finger straightness: ", fingerName)
+					// }
 					return false
+				}
 			}
 
 			// don't need to check anything since it's null aka doesn't matter
@@ -89,12 +96,18 @@ export class Hand {
 					direction => finger.direction.equals(direction)) 
 
 			if (fingerState.direction instanceof ValidDirections && searchResult === undefined) {
+				// if (gesture.name == "five") console.log("Failed at finger direction: ", {
+				// 	fingerName,
+				// 	direction: finger.direction
+				// })
 				return false // doesn't match any => finger failed => whole gesture fails
 			}
 			else if (fingerState.direction instanceof InvalidDirections && searchResult !== undefined) {
+				// if (gesture.name == "five") console.log("Failed at finger: ", fingerName)
 				return false // match invalid vector => finger failed
 			}
 		}
+		// if (gesture.name == "five") console.log("matches")
 		return true
 	}
 
