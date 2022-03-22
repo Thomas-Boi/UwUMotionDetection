@@ -1,7 +1,10 @@
+/* ///////////////////////// GENERAL ///////////////////// */
+
 body {
   padding: 0;
   margin: 0;
   overflow: hidden;
+  color: white;
 }
 
 
@@ -19,21 +22,36 @@ canvas {
   margin: none;
 }
 
-#status {
-  /* display: inline-block; JS need to set #status to inline-block to work*/
+/* ///////////////////////// STATUSES ///////////////////// */
+
+#statuses {
+  /* display: inline-flex; JS need to set #status to inline-block to work*/
+  column-gap: 3vw;
+  align-items: center;
   position: fixed;
   top: 5vh;
   left: 3vw;
-  width: 100px;
-  height: 50px;
   z-index: 2;
   display: none;
 }
 
-#loadingScreen {
-  /* Flip the text horizontally */
+#gestureName {
+  /* Flip the text horizontally by default*/
   transform: rotateY(180deg);
-  color: white;
+  font-size: 2rem;
+}
+
+#detectedSign {
+  display: inline-block;
+  width: 100px;
+  height: 50px;
+  background-color: #ff0007;
+}
+
+/* ///////////////////////// LOADING ///////////////////// */
+#loadingScreen {
+  /* Flip the text horizontally by default*/
+  transform: rotateY(180deg);
   position: fixed;
   height: 100%;
   width: 100%;
@@ -47,7 +65,6 @@ canvas {
   row-gap: 5%;
 }
 
-/* LOADING SPINNER  */
 #loadingUI {
   position: relative;
   width: min-content;
@@ -81,7 +98,7 @@ canvas {
   font-size: 1.5rem;
 }
 
-/* START MESSAGE */
+/* ///////////////////////// START ///////////////////// */
 #startMsg {
   /* display: flex; Styling works for display: flex -> JS has to set it to this*/
   color: white;
@@ -96,7 +113,7 @@ canvas {
   margin-right: 2rem;
 }
 
-/* INSTRUCTION */
+/* ///////////////////////// INSTRUCTION ///////////////////// */
 
 #instructionDiv {
   display: grid;
@@ -116,8 +133,16 @@ canvas {
   border-right: 3px solid white;
 }
 
+.instruction:last-of-type {
+  border-right: none;
+}
+
 .instructionText {
   height: 100%;
   width: 100%;
   border-right: 3px solid white;
+}
+
+.instructionText:last-of-type {
+  border-right: none;
 }

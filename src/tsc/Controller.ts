@@ -22,7 +22,10 @@ const START_THRESHOLD_MILISEC = 600
 // we are confident that the user is intentionally making a shape 
 // with their hand and not due to noises.
 const SHAPE_COUNTER_THRESHOLD = 5
-const statusSpan = document.getElementById("status")
+
+// report the status to the user
+const detectedSign = document.getElementById("detectedSign")
+const gestureName = document.getElementById("gestureName")
 
 /**
  * Use the HandTracker's data and manipulate the scene using it.
@@ -103,11 +106,14 @@ export class Controller {
 		this.init3DScene()
 
 		this.isSelfieMode = facingMode === "user" ? true : false
+
 		// default: everything is flipped
 		// if we are testing on laptop, unflip it
 		if (this.isSelfieMode) {
-			document.getElementById("loadingScreen").style.transform = ""
+			document.getElementById("loadingScreen").style.transform = "none"
+			gestureName.style.transform = "none"
 		}
+
 		this.shapeCounter = 0
 
 		this.gesturesToDetect = [
@@ -160,7 +166,7 @@ export class Controller {
 		// show the start message
 		document.getElementById("loadingUI").style.display = "none"
 		document.getElementById("startMsg").style.display = "flex"
-		document.getElementById("status").style.display = "inline-block"
+		document.getElementById("statuses").style.display = "inline-flex"
 
 		// check and see the state of the Controller, which is
 		// the current hand gesture of the user.
@@ -226,12 +232,12 @@ export class Controller {
 		// we can't do any calculations.
 		let newGesture: Gesture.Gesture = null
 		if (!results || results.multiHandLandmarks.length === 0) {
-			statusSpan.style.backgroundColor = "#ff0007"  // bright red
+			detectedSign.style.backgroundColor = "#ff0007"  // bright red
 			this.hand = null
 		}
 		else {
 			// valid data => start analyzing the shape
-			statusSpan.style.backgroundColor = "#02fd49" // neon green
+			detectedSign.style.backgroundColor = "#02fd49" // neon green
 			this.hand = new Hand(results.multiHandLandmarks[0])
 			for (let gesture of this.gesturesToDetect) {
 				if (this.hand.matches(gesture)) {
@@ -260,6 +266,7 @@ export class Controller {
 			this.curState = newGesture
 			// only get the time when switch to new gesture
 			this.gestureStartTime = Date.now()
+			gestureName.innerText = this.curState?.name || "NONE"
 		}
 		this.latestGesture = newGesture
 
