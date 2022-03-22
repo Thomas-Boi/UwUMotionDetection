@@ -4,13 +4,11 @@ body {
   overflow: hidden;
 }
 
-#message {
-  font-size: 30px;
-}
 
 video {
-  width: 500px;
-  height: 300px;
+  /* Same width and height to match the resolution in InputSource.ts*/
+  width: 256px;
+  height: 144px;
 }
 
 canvas {
@@ -30,15 +28,6 @@ canvas {
   height: 50px;
   z-index: 2;
   display: none;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
 
 #loadingScreen {
@@ -64,6 +53,15 @@ canvas {
   width: min-content;
   justify-self: center;
   display: grid;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {

@@ -271,12 +271,12 @@ export class Controller {
 	 * @param prevHand the hand of the previous frame.
 	 */
 	translate(hand: Hand, prevHand: Hand) {
-		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
+		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x)
 		// has to flip horizontal footage since camera flips the view
 		if (this.isSelfieMode) horizontalDelta *= -1
 
 		// has to flip vertical footage since image y-axis run top to bottom (increase downward like js)
-		let verticalDelta = -getDelta(hand.wrist.y, prevHand.wrist.y, 5)
+		let verticalDelta = -getDelta(hand.wrist.y, prevHand.wrist.y)
 
 		this.mesh.translate(BABYLON.Axis.X, TRANSLATE_MULTIPLIER * horizontalDelta, BABYLON.Space.WORLD)
 		this.mesh.translate(BABYLON.Axis.Y, TRANSLATE_MULTIPLIER * verticalDelta, BABYLON.Space.WORLD)
@@ -290,7 +290,7 @@ export class Controller {
 	rotateAroundY(hand: Hand, prevHand: Hand) {
 		// don't need to flip the horizontal for this. The rotation matches
 		// with the flipped image
-		let horizontalDelta = getDelta(hand.index.joints[FINGER_INDICES.TIP].x, prevHand.index.joints[FINGER_INDICES.TIP].x, 5)
+		let horizontalDelta = getDelta(hand.index.joints[FINGER_INDICES.TIP].x, prevHand.index.joints[FINGER_INDICES.TIP].x)
 		if (!this.isSelfieMode) horizontalDelta *= -1
 
 		this.mesh.rotate(BABYLON.Axis.Y, ROTATE_MULTIPLIER * horizontalDelta)
@@ -303,7 +303,7 @@ export class Controller {
 	 */
 	rotateAroundX(hand: Hand, prevHand: Hand) {
 		// has to fliip the vertical to get the right rotation
-		let verticalDelta = -getDelta(hand.index.joints[FINGER_INDICES.TIP].y, prevHand.index.joints[FINGER_INDICES.TIP].y, 5)
+		let verticalDelta = -getDelta(hand.index.joints[FINGER_INDICES.TIP].y, prevHand.index.joints[FINGER_INDICES.TIP].y)
 
 		this.mesh.rotate(BABYLON.Axis.X, ROTATE_MULTIPLIER * verticalDelta, BABYLON.Space.WORLD)
 	}
@@ -314,7 +314,7 @@ export class Controller {
 	 * @param prevHand the hand of the previous frame.
 	 */
 	zoom(hand: Hand, prevHand: Hand) {
-		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x, 5)
+		let horizontalDelta = getDelta(hand.middle.joints[FINGER_INDICES.PIP].x, prevHand.middle.joints[FINGER_INDICES.PIP].x)
 		// has to flip horizontal footage since camera flips the view
 		if (!this.isSelfieMode) {
 			horizontalDelta *= -1

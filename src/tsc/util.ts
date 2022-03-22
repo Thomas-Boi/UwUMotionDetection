@@ -35,10 +35,10 @@ export function fitOnLine(point: Vector3, start: Vector3, vector: Vector3, varia
  * @param a, the first number. 
  * @param b, the second number.
  * @param decimalPlace, how much we are rounding the delta result.
- * Default to 2 decimal place.
+ * Default to 7 decimal place.
  * @returns 
  */
-export function getDelta(a: number, b: number, decimalPlace: number=2) {
+export function getDelta(a: number, b: number, decimalPlace: number=7) {
 	let delta = a - b
 
 	// round to x decimal place, see https://stackoverflow.com/a/11832950/11683637

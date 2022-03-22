@@ -84,8 +84,8 @@ export class InputSource {
 				}
 			},
 			// only need a small resolution
-			width: 128,
-			height: 72,
+			width: 256,
+			height: 144,
 			facingMode: this.facingMode
 		})
 
